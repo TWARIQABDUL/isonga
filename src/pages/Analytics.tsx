@@ -95,6 +95,7 @@ export default function Analytics() {
   return (
     <div className="space-y-6">
       {/* Header */}
+      analytihhhhhh
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>

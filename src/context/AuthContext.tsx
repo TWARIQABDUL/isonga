@@ -21,15 +21,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const mockUser: User = {
   id: '1',
-  name: 'John Uwimana',
-  email: 'john.uwimana@email.com',
+  name: 'Twariki Abdalazizi',
+  email: 'twariqabdalazizi@gmail.com',
   joinedDate: '2023-01-15',
   avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop'
 };
-
+interface CheckEmailValidation {
+  isValid: boolean;
+}
+const checkEmail = (email:String):CheckEmailValidation=>{
+  return {
+    isValid: email === mockUser.email
+  };
+}
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
   // const navigate = useNavigate();
   useEffect(() => {
     // Check for stored auth state
@@ -47,8 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     // Mock authentication - accept any email/password for demo
-    if (email && password) {
+    if (checkEmail(email) && password==='123456') {
       setUser(mockUser);
+
       localStorage.setItem('user', JSON.stringify(mockUser));
       setIsLoading(false);
       console.log("succesful login");

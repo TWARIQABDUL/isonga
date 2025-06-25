@@ -36,7 +36,7 @@ export interface AccountSummary {
 }
 
 export const savingsData: SavingsData[] = [
-  { month: 'Jan', amount: 250000, target: 300000 },
+  { month: 'Janf', amount: 250000, target: 300000 },
   { month: 'Feb', amount: 420000, target: 400000 },
   { month: 'Mar', amount: 380000, target: 450000 },
   { month: 'Apr', amount: 520000, target: 500000 },
@@ -47,7 +47,7 @@ export const savingsData: SavingsData[] = [
   { month: 'Sep', amount: 1250000, target: 1200000 },
   { month: 'Oct', amount: 1420000, target: 1350000 },
   { month: 'Nov', amount: 1580000, target: 1500000 },
-  { month: 'Dec', amount: 1750000, target: 1650000 }
+  { month: 'Dec', amount: 750000, target: 1650000 }
 ];
 
 export const loansData: LoanData[] = [
