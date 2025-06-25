@@ -1,9 +1,9 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { useData } from '../../context/DataContext';
 import { formatCurrency } from '../../utils/formatters';
 
-export default function SavingsChart() {
+export default function SavingsChart():React.ReactElement {
   const { savingsData } = useData();
 
   const CustomTooltip = ({ active, payload, label }: any) => {
