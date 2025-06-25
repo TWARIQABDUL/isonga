@@ -8,6 +8,8 @@ export default function SavingsChart() {
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      console.log("payloads",payload[0].payload);
+      
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{label}</p>
@@ -15,7 +17,7 @@ export default function SavingsChart() {
             Actual: {formatCurrency(payload[0].value)}
           </p>
           <p className="text-gray-500">
-            Target: {formatCurrency(payload[1].value)}
+            Target: {formatCurrency(payload[0].payload.target)}
           </p>
         </div>
       );
