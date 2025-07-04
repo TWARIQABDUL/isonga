@@ -1,12 +1,10 @@
-import  { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-// import { useNavigate } from "react-router-dom";
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface User {
-  id: string;
-  name: string;
   email: string;
-  joinedDate: string;
-  avatar?: string;
+  role: string;
+  fullName: string;
+  token: string;
 }
 
 interface AuthContextType {
@@ -19,28 +17,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const mockUser: User = {
-  id: '1',
-  name: 'Twariki Abdalazizi',
-  email: 'twariqabdalazizi@gmail.com',
-  joinedDate: '2023-01-15',
-  avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop'
-};
-interface CheckEmailValidation {
-  isValid: boolean;
-}
-const checkEmail = (email:String):CheckEmailValidation=>{
-  return {
-    isValid: email === mockUser.email
-  };
-}
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // const navigate = useNavigate();
   useEffect(() => {
-    // Check for stored auth state
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -50,23 +31,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Mock authentication - accept any email/password for demo
-    if (checkEmail(email) && password==='123456') {
-      setUser(mockUser);
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
 
-      localStorage.setItem('user', JSON.stringify(mockUser));
+      if (!response.ok) {
+        console.error("Login failed:", response.status);
+        setIsLoading(false);
+        return false;
+      }
+
+      const data = await response.json();
+
+      const loggedInUser: User = {
+        email: data.email,
+        role: data.role,
+        fullName: data.fullName,
+        token: data.token
+      };
+
+      setUser(loggedInUser);
+      localStorage.setItem('user', JSON.stringify(loggedInUser));
+      console.log("Successful login");
+
       setIsLoading(false);
-      console.log("succesful login");
-      // navigate("/")
       return true;
+    } catch (error) {
+      console.error("Login error:", error);
+      setIsLoading(false);
+      return false;
     }
-    
-    setIsLoading(false);
-    return false;
   };
 
   const logout = () => {

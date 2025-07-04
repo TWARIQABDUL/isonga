@@ -28,7 +28,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }: NavbarProps):Rea
           
           <div className="hidden lg:block">
             <h1 className="text-xl font-semibold text-gray-800">
-              Welcome back, {user?.name}!
+              Welcome back, {user?.fullName}!
             </h1>
           </div>
         </div>
@@ -47,7 +47,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }: NavbarProps):Rea
               {user?.avatar ? (
                 <img
                   src={user.avatar}
-                  alt={user.name}
+                  alt={user.fullName}
                   className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
@@ -56,7 +56,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }: NavbarProps):Rea
                 </div>
               )}
               <span className="hidden md:block text-sm font-medium text-gray-700">
-                {user?.name}
+                {user?.fullName}
               </span>
             </button>
 
