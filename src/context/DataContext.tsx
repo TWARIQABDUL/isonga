@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { savingsData, loansData, activityLogs, accountSummary } from '../data';
 
 interface DataContextType {
