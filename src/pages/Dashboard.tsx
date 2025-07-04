@@ -19,6 +19,8 @@ import { formatCurrency, formatDate } from '../utils/formatters';
 export default function Dashboard():React.ReactElement {
   const { accountSummary, activityLogs } = useData();
 
+  console.log('accountSummary:', accountSummary);
+  
   const activityColumns = [
     {
       key: 'type',
@@ -98,7 +100,7 @@ export default function Dashboard():React.ReactElement {
           trend={{ value: 12.5, isPositive: true }}
         />
         <DashboardCard
-          title="Active Loans"
+          title="Active Loooans"
           value={formatCurrency(accountSummary.totalLoans)}
           icon={CreditCard}
           trend={{ value: -5.2, isPositive: false }}
