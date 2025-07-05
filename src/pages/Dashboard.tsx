@@ -17,7 +17,7 @@ import { useData } from '../context/DataContext';
 import { formatCurrency, formatDate } from '../utils/formatters';
 
 export default function Dashboard():React.ReactElement {
-  const { accountSummary, activityLogs } = useData();
+  const { accountSummary, activityLogs, isLoading } = useData();
 
   console.log('accountSummary:', accountSummary);
   
@@ -92,32 +92,32 @@ export default function Dashboard():React.ReactElement {
       </div>
 
       {/* Metrics Cards */}
+      {isLoading &&
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <DashboardCard
           title="Total Savings"
-          value={formatCurrency(accountSummary.totalSavings)}
+          value={formatCurrency(accountSummary?.totalSavings ?? 0)}
           icon={PiggyBank}
           trend={{ value: 12.5, isPositive: true }}
         />
         <DashboardCard
           title="Active Loooans"
-          value={formatCurrency(accountSummary.totalLoans)}
+          value={formatCurrency(accountSummary?.totalLoans ?? 0)}
           icon={CreditCard}
           trend={{ value: -5.2, isPositive: false }}
         />
         <DashboardCard
           title="Monthly Contribution"
-          value={formatCurrency(accountSummary.monthlyContribution)}
-          icon={TrendingUp}
-          trend={{ value: 8.1, isPositive: true }}
-        />
+          value={formatCurrency(accountSummary?.monthlyContribution ?? 0)}
+          icon={TrendingUp}        />
         <DashboardCard
           title="Credit Score"
-          value={accountSummary.creditScore}
+          value={accountSummary?.creditScore ?? 0}
           icon={Award}
           trend={{ value: 2.3, isPositive: true }}
         />
       </div>
+}
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

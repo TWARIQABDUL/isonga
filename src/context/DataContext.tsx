@@ -6,7 +6,8 @@ interface DataContextType {
   savingsData: typeof savingsData;
   loansData: typeof loansData;
   activityLogs: typeof activityLogs;
-  accountSummary: typeof accountSummary;
+  accountSummary: AccountSummary | undefined;
+  isLoading: boolean;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -14,6 +15,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export function DataProvider({ children }: { children: ReactNode }) {
 
   const [dynaccountSummary, setAccountSummary] = useState<AccountSummary | undefined>();
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -30,6 +32,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           interestEarned: 0,      // You can adjust later
           creditScore: 'Good'     // Placeholder, adjust later
         });
+        setLoaded(true)
         console.log("dyn",dynaccountSummary);
         
         // You can also fetch loans & savings if needed here
@@ -48,7 +51,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       savingsData,
       loansData,
       activityLogs,
-      accountSummary: dynaccountSummary || accountSummary // Use dynamic summary if available
+      accountSummary: dynaccountSummary || accountSummary,
+      isLoading:loaded
     }}>
       {children}
     </DataContext.Provider>
