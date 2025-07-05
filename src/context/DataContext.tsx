@@ -2,57 +2,68 @@ import { createContext, useContext, ReactNode, useEffect, useState } from 'react
 import { savingsData, loansData, activityLogs, accountSummary, AccountSummary } from '../data';
 import axios from 'axios';
 
+interface SavingsData {
+  month: string;
+  amount: number;
+  target: number;
+}
+
 interface DataContextType {
   savingsData: typeof savingsData;
   loansData: typeof loansData;
   activityLogs: typeof activityLogs;
   accountSummary: AccountSummary | undefined;
+  monthlySavings: SavingsData[] | undefined;
   isLoading: boolean;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: ReactNode }) {
+  const [dynaccountSummary, setAccountSummary] = useState<AccountSummary>();
+  const [monthlySavings, setMonthlySavings] = useState<SavingsData[]>();
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [dynaccountSummary, setAccountSummary] = useState<AccountSummary | undefined>();
-  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
         if (!token) return;
 
-        // 🟢 Fetch summary
+        // Fetch account summary
         const summaryRes = await axios.get('http://localhost:8080/api/dashboard/summary', {
           headers: { Authorization: `Bearer ${token}` }
         });
-
         setAccountSummary({
           ...summaryRes.data.data,
-          interestEarned: 0,      // You can adjust later
-          creditScore: 'Good'     // Placeholder, adjust later
+          interestEarned: 0, // Placeholder
+          creditScore: 'Good' // Placeholder
         });
-        setLoaded(true)
-        console.log("dyn",dynaccountSummary);
-        
-        // You can also fetch loans & savings if needed here
-        // const loansRes = await axios.get('...');
-        // setLoansData(loansRes.data);
+
+        // Fetch monthly savings summary
+        const monthlyRes = await axios.get('http://localhost:8080/api/savings/monthly-summary', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setMonthlySavings(monthlyRes.data.data);
 
       } catch (err) {
-        console.error('Errords fetching daffshboard data:', err);
+        console.error('Error fetching dashboard data:', err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchData();
   }, []);
+
   return (
     <DataContext.Provider value={{
       savingsData,
       loansData,
       activityLogs,
       accountSummary: dynaccountSummary || accountSummary,
-      isLoading:loaded
+      monthlySavings,
+      isLoading
     }}>
       {children}
     </DataContext.Provider>
@@ -62,7 +73,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 export function useData() {
   const context = useContext(DataContext);
   if (context === undefined) {
-    throw new Error('useData from here must be used within a DataProvider');
+    throw new Error('useData must be used within a DataProvider');
   }
   return context;
 }

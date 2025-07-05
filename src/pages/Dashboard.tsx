@@ -152,7 +152,7 @@ export default function Dashboard():React.ReactElement {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-green-100 text-sm">Interest Earned</p>
-              <p className="text-2xl font-bold">{formatCurrency(accountSummary.interestEarned)}</p>
+              <p className="text-2xl font-bold">{formatCurrency(accountSummary?.interestEarned ?? 0)}</p>
             </div>
             <TrendingUp className="w-8 h-8 text-green-200" />
           </div>
