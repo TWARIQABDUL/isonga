@@ -7,7 +7,7 @@ import { useData } from '../context/DataContext';
 import { formatCurrency, formatDate } from '../utils/formatters';
 
 export default function LoanRequest() {
-  const { loansData } = useData();
+  const { loanData = [] } = useData();
 
   const loanColumns = [
     { key: 'id', label: 'ID' },
@@ -66,7 +66,7 @@ export default function LoanRequest() {
       {/* Status Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {Object.entries(
-          loansData.reduce((acc, loan) => {
+          loanData.reduce((acc, loan) => {
             acc[loan.status] = (acc[loan.status] || 0) + 1;
             return acc;
           }, {} as Record<string, number>)
@@ -104,7 +104,7 @@ export default function LoanRequest() {
           <p className="text-gray-600">Track the status of your loan requests</p>
         </div>
         <div className="p-6">
-          <Table columns={loanColumns} data={loansData} />
+          <Table columns={loanColumns} data={loanData} />
         </div>
       </div>
 
@@ -124,7 +124,7 @@ export default function LoanRequest() {
           <div>
             <h4 className="font-medium text-blue-800 mb-2">Loan Limits</h4>
             <ul className="text-sm text-blue-700 space-y-1">
-              <li>• Minimum: 50,000 RWF</li>
+              <li>• Minimumd: 50,000 RWF</li>
               <li>• Maximum: Based on savings & credit score</li>
               <li>• Duration: 6 to 60 months</li>
               <li>• Interest rate: 10-15% annually</li>

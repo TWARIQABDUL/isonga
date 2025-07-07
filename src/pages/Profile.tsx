@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
+import React, { useEffect, useState } from 'react';
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
   Calendar,
   Edit,
   Save,
@@ -16,18 +16,57 @@ import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { formatDate, formatCurrency } from '../utils/formatters';
 import Badge from '../components/layout/Badge';
+import axios from 'axios';
 
 export default function Profile() {
   const { user } = useAuth();
-  const { activityLogs, accountSummary } = useData();
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: user?.name || '',
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
+
+const [formData, setFormData] = useState({
+    name: user?.fullName || '',
     email: user?.email || '',
-    phone: '+250 788 123 456',
+    phone: "456789087",
     address: 'Kigali, Rwanda',
     occupation: 'Software Developer'
   });
+  type UserInfo = {
+    phoneNumber?: string;
+    // add other fields as needed
+  };
+
+  useEffect(() => {
+  const fetchProfile = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
+      if (!token) {
+        console.error("No token found!");
+        return;
+      }
+      console.log("the token",token);
+
+      const response = await axios.get(`http://localhost:8080/api/users/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUserInfo(response.data)
+
+      console.log("the token",token);
+
+      console.log("Here is profile", response.data);
+      console.log("the token",token);
+      
+      // Example: setUserInfo(response.data)
+    } catch (error) {
+      console.error("Failed to fetch profile", error);
+    }
+  };
+
+  fetchProfile();
+}, []);
+
+  const { activityLogs, accountSummary } = useData();
+  const [isEditing, setIsEditing] = useState(false);
+  
+console.log("hhh ",userInfo?.phoneNumber);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -41,7 +80,7 @@ export default function Profile() {
 
   const handleCancel = () => {
     setFormData({
-      name: user?.name || '',
+      name: user?.fullName || '',
       email: user?.email || '',
       phone: '+250 788 123 456',
       address: 'Kigali, Rwanda',
@@ -115,7 +154,7 @@ export default function Profile() {
                 </div>
                 <div>
                   <h4 className="text-xl font-semibold text-gray-900">{user?.name}</h4>
-                  <p className="text-gray-600">Member since {formatDate(user?.joinedDate || '')}</p>
+                  <p className="text-gray-600">Member since </p>
                   <Badge variant="success" className="mt-1">Verified Account</Badge>
                 </div>
               </div>
@@ -326,11 +365,10 @@ export default function Profile() {
                   <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900">{activity.description}</p>
-                    <p className="text-xs text-gray-500">{formatDate(activity.date)}</p>
+                    <p className="text-xs text-gray-500">hh</p>
                   </div>
-                  <span className={`text-sm font-medium ${
-                    activity.amount > 0 ? 'text-green-600' : 'text-red-600'
-                  }`}>
+                  <span className={`text-sm font-medium ${activity.amount > 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
                     {formatCurrency(activity.amount)}
                   </span>
                 </div>

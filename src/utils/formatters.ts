@@ -30,3 +30,14 @@ export const calculateMonthlyPayment = (principal: number, rate: number, months:
   return (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
          (Math.pow(1 + monthlyRate, months) - 1);
 };
+
+export const formatDateFromMonths = (months: number,startDate: Date): string => {      // Loan duration in months
+
+const date = new Date(startDate);
+date.setMonth(date.getMonth() + months);  // Add months
+
+const endDate = date.toISOString().split('T')[0];  // Format: YYYY-MM-DD
+return endDate;
+console.log("Loan End Date:", endDate);  // Output: 2026-02-15
+
+};
