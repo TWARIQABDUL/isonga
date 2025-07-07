@@ -1,10 +1,16 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {jwtDecode} from 'jwt-decode';
 
 interface User {
   email: string;
   role: string;
   fullName: string;
   token: string;
+}
+
+interface DecodedToken {
+  exp: number;
+  [key: string]: any;
 }
 
 interface AuthContextType {
@@ -17,6 +23,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// ✅ Helper to validate token
+const isTokenValid = (token: string): boolean => {
+  try {
+    const decoded: DecodedToken = jwtDecode(token);
+    const currentTime = Date.now() / 1000;
+    return decoded.exp > currentTime;
+  } catch (error) {
+    console.error('Invalid token:', error);
+    return false;
+  }
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +42,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const userObj: User = JSON.parse(storedUser);
+      if (isTokenValid(userObj.token)) {
+        setUser(userObj);
+      } else {
+        console.warn("Token expired or invalid, logging out.");
+        localStorage.removeItem('user');
+        setUser(null);
+      }
     }
     setIsLoading(false);
   }, []);
@@ -55,12 +80,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token: data.token
       };
 
-      setUser(loggedInUser);
-      localStorage.setItem('user', JSON.stringify(loggedInUser));
-      console.log("Successful login");
-
-      setIsLoading(false);
-      return true;
+      if (isTokenValid(loggedInUser.token)) {
+        setUser(loggedInUser);
+        localStorage.setItem('user', JSON.stringify(loggedInUser));
+        console.log("Successful login");
+        setIsLoading(false);
+        return true;
+      } else {
+        console.error("Received invalid or expired token during login.");
+        setIsLoading(false);
+        return false;
+      }
     } catch (error) {
       console.error("Login error:", error);
       setIsLoading(false);

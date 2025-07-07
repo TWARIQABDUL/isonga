@@ -63,12 +63,26 @@ export const loansData: LoanData[] = [
     monthlyPayment: 44400,
     remainingBalance: 355200
   },
+
+  {
+    // userIdNumber: "1199680057907051",
+    id: "819b9227-825e-4630-9319-a55a424fefcb",
+    amount: 400000,
+    purpose: "Emergency Medical Support",
+    duration: 4,
+    status: "active",
+    requestDate: "2025-07-01",
+    approvalDate: "2025-07-04",
+    interestRate: 5.00,
+    monthlyPayment: 105000,
+    createdAt: "2025-07-01T22:46:51"
+  },
   {
     id: '2',
     amount: 800000,
     purpose: 'Education',
     duration: 24,
-    status: 'approved',
+    status: 'active',
     requestDate: '2024-02-10',
     approvalDate: '2024-02-15',
     interestRate: 10,

@@ -15,11 +15,12 @@ import Table from '../components/layout/Table';
 import Badge from '../components/layout/Badge';
 import { useData } from '../context/DataContext';
 import { formatCurrency, formatDate } from '../utils/formatters';
+import { useAuth } from '../context/AuthContext';
 
 export default function Dashboard():React.ReactElement {
   const { accountSummary, activityLogs, isLoading } = useData();
-
-  console.log('accountSummary:', accountSummary);
+  const{user}=useAuth()
+  console.log('accountSummary:', user);
   
   const activityColumns = [
     {
@@ -85,14 +86,17 @@ export default function Dashboard():React.ReactElement {
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600">Overview of your savings and loans</p>
         </div>
+        {user?.role === 'ADMIN' &&
         <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
           <Plus className="w-4 h-4" />
           <span>Quick Action</span>
         </button>
+        }
       </div>
+      
 
       {/* Metrics Cards */}
-      {isLoading &&
+      {!isLoading &&
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <DashboardCard
           title="Total Savings"

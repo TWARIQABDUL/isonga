@@ -12,6 +12,7 @@ interface DataContextType {
   savingsData: typeof savingsData;
   loansData: typeof loansData;
   activityLogs: typeof activityLogs;
+  loanData?: typeof loansData; // Optional, if you want to provide loan data
   accountSummary: AccountSummary | undefined;
   monthlySavings: SavingsData[] | undefined;
   isLoading: boolean;
@@ -22,6 +23,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export function DataProvider({ children }: { children: ReactNode }) {
   const [dynaccountSummary, setAccountSummary] = useState<AccountSummary>();
   const [monthlySavings, setMonthlySavings] = useState<SavingsData[]>();
+  const [loanData, setLoansData] = useState<typeof loansData>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -34,18 +36,34 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const summaryRes = await axios.get('http://localhost:8080/api/dashboard/summary', {
           headers: { Authorization: `Bearer ${token}` }
         });
+
+
         setAccountSummary({
           ...summaryRes.data.data,
           interestEarned: 0, // Placeholder
           creditScore: 'Good' // Placeholder
-        });
+        }); 
+
+        console.log("accountSummary here:", summaryRes.data.data);
+        
+
 
         // Fetch monthly savings summary
         const monthlyRes = await axios.get('http://localhost:8080/api/savings/monthly-summary', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setMonthlySavings(monthlyRes.data.data);
+         // Fetch monthly savings summary
+        const loanRes = await axios.get('http://localhost:8080/api/loans/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setLoansData(loanRes.data.loans)
+        console.log("loanRes:", loanRes.data.loans);
+        
+        setIsLoading(false);
 
+
+        //  console.log(loanData);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
       } finally {
@@ -61,6 +79,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       savingsData,
       loansData,
       activityLogs,
+      // mydynamic data
+      loanData,
       accountSummary: dynaccountSummary || accountSummary,
       monthlySavings,
       isLoading
