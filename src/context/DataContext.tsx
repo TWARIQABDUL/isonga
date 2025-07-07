@@ -16,6 +16,7 @@ interface DataContextType {
   accountSummary: AccountSummary | undefined;
   monthlySavings: SavingsData[] | undefined;
   isLoading: boolean;
+  activity: any[]; // Add this line to include the activity property
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -25,6 +26,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [monthlySavings, setMonthlySavings] = useState<SavingsData[]>();
   const [loanData, setLoansData] = useState<typeof loansData>();
   const [isLoading, setIsLoading] = useState(true);
+  const [activity, setActivity] = useState<any[]>(activityLogs);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,10 +44,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
           ...summaryRes.data.data,
           interestEarned: 0, // Placeholder
           creditScore: 'Good' // Placeholder
-        }); 
+        });
 
         console.log("accountSummary here:", summaryRes.data.data);
-        
+
 
 
         // Fetch monthly savings summary
@@ -53,13 +55,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
           headers: { Authorization: `Bearer ${token}` }
         });
         setMonthlySavings(monthlyRes.data.data);
-         // Fetch monthly savings summary
+        // Fetch monthly savings summary
         const loanRes = await axios.get('http://localhost:8080/api/loans/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setLoansData(loanRes.data.loans)
-        console.log("loanRes:", loanRes.data.loans);
-        
+
+        const activities = await axios.get(`http://localhost:8080/api/activities`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setActivity(activities.data.data);
+        console.log("activities here:", activities.data.data);
+
         setIsLoading(false);
 
 
@@ -83,6 +90,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       loanData,
       accountSummary: dynaccountSummary || accountSummary,
       monthlySavings,
+      activity,
       isLoading
     }}>
       {children}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   PiggyBank, 
   TrendingUp, 
@@ -16,9 +16,10 @@ import Badge from '../components/layout/Badge';
 import { useData } from '../context/DataContext';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { useAuth } from '../context/AuthContext';
-
+import CollectSavings from '../components/CollectSavings';
 export default function Dashboard():React.ReactElement {
-  const { accountSummary, activityLogs, isLoading } = useData();
+  const { accountSummary, activityLogs,activity, isLoading } = useData();
+    const [showColectionForm, setShowColectionForm] = useState(false);
   const{user}=useAuth()
   console.log('accountSummary:', user);
   
@@ -87,14 +88,14 @@ export default function Dashboard():React.ReactElement {
           <p className="text-gray-600">Overview of your savings and loans</p>
         </div>
         {user?.role === 'ADMIN' &&
-        <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        <button  onClick={() => setShowColectionForm(true)} className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
           <Plus className="w-4 h-4" />
           <span>Quick Action</span>
         </button>
         }
       </div>
-      
 
+      {showColectionForm && <CollectSavings setShowColectionForm={setShowColectionForm} />}
       {/* Metrics Cards */}
       {!isLoading &&
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -145,7 +146,7 @@ export default function Dashboard():React.ReactElement {
         <div className="p-6">
           <Table 
             columns={activityColumns} 
-            data={activityLogs.slice(0, 5)} 
+            data={activity.slice(0, 5)} 
           />
         </div>
       </div>
@@ -167,7 +168,7 @@ export default function Dashboard():React.ReactElement {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-blue-100 text-sm">Available Credit</p>
-              <p className="text-2xl font-bold">{formatCurrency(accountSummary.availableCredit)}</p>
+              <p className="text-2xl font-bold">{formatCurrency(accountSummary?.totalSavings ??0)}</p>
             </div>
             <CreditCard className="w-8 h-8 text-blue-200" />
           </div>

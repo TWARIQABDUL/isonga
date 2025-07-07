@@ -30,6 +30,8 @@ interface LoanPayment {
 export default function Loans() {
   const { loansData, accountSummary } = useData();
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+
+
   const [selectedLoan, setSelectedLoan] = useState<string | null>(null);
 
   // Mock payment schedule data
@@ -378,6 +380,8 @@ export default function Loans() {
           </div>
         </div>
       )}
+      {/* Collect Savings Temporarily */}
+      
     </div>
   );
 }
