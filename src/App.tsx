@@ -40,7 +40,7 @@ const router = createBrowserRouter(
         { path: "loan-request", element: <LoanRequest /> },
         { path: "analytics", element: <Analytics /> },
         { path: "profile", element: <Profile /> },
-        { path: "testing", element: <Testing /> },
+        { path: "report", element: <Testing /> },
 
       ],
     },

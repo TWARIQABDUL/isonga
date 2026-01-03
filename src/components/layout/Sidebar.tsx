@@ -6,7 +6,8 @@ import {
   CreditCard, 
   User, 
   FileText,
-  TrendingUp
+  TrendingUp,
+  LucideReceiptPoundSterling
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -20,6 +21,7 @@ const navigation = [
   { name: 'Loans', href: '/loans', icon: CreditCard },
   { name: 'Request Loan', href: '/loan-request', icon: FileText },
   { name: 'Analytics', href: '/analytics', icon: TrendingUp },
+  { name: 'Day Report', href: '/report', icon: LucideReceiptPoundSterling },
   { name: 'Profile', href: '/profile', icon: User },
 ];
 
