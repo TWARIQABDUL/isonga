@@ -33,7 +33,7 @@ const Testing = () => {
           try {
             const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
             const res = await axios.get(
-              'http://localhost:8080/api/savings/dayreport',
+              `${import.meta.env.VITE_API_URL}/savings/dayreport`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
             let filtered = res.data;
