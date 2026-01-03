@@ -54,6 +54,7 @@ const baseUrl = import.meta.env.VITE_API_URL_DEV;
         const monthlyRes = await axios.get(`${baseUrl}/savings/monthly-summary`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+        console.log("monthlyRes here:");
         setMonthlySavings(monthlyRes.data.data);
         // Fetch monthly savings summary
         const loanRes = await axios.get(`${baseUrl}/loans/me`, {

@@ -13,7 +13,7 @@ const columns = [
 const Testing = () => {
   const [loading, setLoading] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
-
+  
   return (
     <Card
       title="Daily Savings Report"
@@ -33,9 +33,11 @@ const Testing = () => {
           try {
             const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
             const res = await axios.get(
-              `${import.meta.env.VITE_API_URL}/savings/dayreport`,
+              `${import.meta.env.VITE_API_URL_DEV}/savings/dayreport`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
+            console.log("fetch day report",res.data);
+            
             let filtered = res.data;
             if (params.full_name) {
               filtered = filtered.filter(item =>
