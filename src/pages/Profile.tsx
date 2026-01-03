@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   User,
   Mail,
@@ -20,61 +20,85 @@ import axios from 'axios';
 
 export default function Profile() {
   const { user } = useAuth();
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
+  // const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
 
-const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     name: user?.fullName || '',
     email: user?.email || '',
-    phone: "456789087",
-    address: 'Kigali, Rwanda',
+    phone: user?.phoneNumber,
+    address: user?.location,
     occupation: 'Software Developer'
   });
-  type UserInfo = {
-    phoneNumber?: string;
-    // add other fields as needed
-  };
+  // type UserInfo = {
+  //   phoneNumber?: string;
+  //   // add other fields as needed
+  // };
 
-  useEffect(() => {
-  const fetchProfile = async () => {
-    try {
-      const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
-      if (!token) {
-        console.error("No token found!");
-        return;
-      }
-      console.log("the token",token);
+  // useEffect(() => {
+  //   // const fetchProfile = async () => {
+  //   //   try {
+  //   //     const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
+  //   //     if (!token) {
+  //   //       console.error("No token found!");
+  //   //       return;
+  //   //     }
+  //   //     console.log("the token", token);
 
-      const response = await axios.get(`http://localhost:8080/api/users/profile`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setUserInfo(response.data)
+  //   //     const response = await axios.get(`http://localhost:8080/api/users/profile`, {
+  //   //       headers: { Authorization: `Bearer ${token}` }
+  //   //     });
+  //   //     setUserInfo(response.data)
 
-      console.log("the token",token);
+  //   //     console.log("the token", token);
 
-      console.log("Here is profile", response.data);
-      console.log("the token",token);
-      
-      // Example: setUserInfo(response.data)
-    } catch (error) {
-      console.error("Failed to fetch profile", error);
-    }
-  };
+  //   //     console.log("Here is profile", response.data);
+  //   //     console.log("the token", token);
 
-  fetchProfile();
-}, []);
+  //   //     // Example: setUserInfo(response.data)
+  //   //   } catch (error) {
+  //   //     console.error("Failed to fetch profile", error);
+  //   //   }
+  //   // };
+
+  //   // fetchProfile();
+  // }, []);
 
   const { activityLogs, accountSummary } = useData();
   const [isEditing, setIsEditing] = useState(false);
-  
-console.log("hhh ",userInfo?.phoneNumber);
+  const baseUrl = import.meta.env.VITE_API_URL;
+  // console.log("hhh ", userInfo?.phoneNumber);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
-    // Save profile changes
+  const handleSave = async () => {
+    const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
+    const update = await axios.patch(`${baseUrl}/users/update`, {
+      fullName: formData.name,
+      phoneNumber: formData.phone,
+      cell: formData.address
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    const loggedInUser = {
+      email: update.data.user.email,
+      role: update.data.user.role,
+      fullName: update.data.user.fullName,
+      // token: update.data.user.token,
+      phoneNumber: update.data.user.phoneNumber,
+      location: update.data.user.cell,
+      token: token
+    };
+    console.log(loggedInUser);
+    localStorage.setItem("user", JSON.stringify(loggedInUser))
+
+
+    // console.log(formData);
+
     setIsEditing(false);
   };
 
@@ -82,12 +106,13 @@ console.log("hhh ",userInfo?.phoneNumber);
     setFormData({
       name: user?.fullName || '',
       email: user?.email || '',
-      phone: '+250 788 123 456',
-      address: 'Kigali, Rwanda',
+      phone: user?.phoneNumber,
+      address: user?.location,
       occupation: 'Software Developer'
     });
     setIsEditing(false);
   };
+  console.log("here is acount summary ", accountSummary);
 
   return (
     <div className="space-y-6">
@@ -138,6 +163,7 @@ console.log("hhh ",userInfo?.phoneNumber);
               <div className="flex items-center space-x-6 mb-6">
                 <div className="relative">
                   {user?.avatar ? (
+
                     <img
                       src={user.avatar}
                       alt={user.name}
@@ -153,7 +179,7 @@ console.log("hhh ",userInfo?.phoneNumber);
                   </button>
                 </div>
                 <div>
-                  <h4 className="text-xl font-semibold text-gray-900">{user?.name}</h4>
+                  <h4 className="text-xl font-semibold text-gray-900">{user?.fullName}</h4>
                   <p className="text-gray-600">Member since </p>
                   <Badge variant="success" className="mt-1">Verified Account</Badge>
                 </div>
@@ -306,27 +332,29 @@ console.log("hhh ",userInfo?.phoneNumber);
 
         {/* Account Summary */}
         <div className="space-y-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Summary</h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Total Savings</span>
-                <span className="font-semibold">{formatCurrency(accountSummary.totalSavings)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Active Loans</span>
-                <span className="font-semibold">{formatCurrency(accountSummary.totalLoans)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Credit Score</span>
-                <span className="font-semibold">{accountSummary.creditScore}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Interest Earned</span>
-                <span className="font-semibold text-green-600">{formatCurrency(accountSummary.interestEarned)}</span>
+          {accountSummary ?
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Summary</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Total Savings</span>
+                  <span className="font-semibold">{formatCurrency(accountSummary!.totalSavings??0)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Active Loans</span>
+                  <span className="font-semibold">{formatCurrency(accountSummary!.totalLoans??0)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Credit Score</span>
+                  <span className="font-semibold">{accountSummary!.creditScore}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Interest Earned</span>
+                  <span className="font-semibold text-green-600">{formatCurrency(accountSummary!.interestEarned)}</span>
+                </div>
               </div>
             </div>
-          </div>
+:<>lokking for data</>}
 
           {/* Quick Actions */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">

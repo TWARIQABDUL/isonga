@@ -40,6 +40,7 @@ export default function LoanRequestForm() {
     employment: '',
     termsAccepted: false
   });
+  const baseUrl = import.meta.env.VITE_API_URL;
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { accountSummary } = useData();
@@ -121,7 +122,7 @@ export default function LoanRequestForm() {
 
       // Simulate API call
       try {
-        const submit = await axios.post('http://localhost:8080/api/loans', {
+        const submit = await axios.post(`${baseUrl}/loans`, {
           amount: formData.amount,
           purpose: formData.purpose,
           duration: formData.duration,

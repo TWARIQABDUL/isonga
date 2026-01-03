@@ -27,7 +27,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [loanData, setLoansData] = useState<typeof loansData>();
   const [isLoading, setIsLoading] = useState(true);
   const [activity, setActivity] = useState<any[]>(activityLogs);
-
+const baseUrl = import.meta.env.VITE_API_URL_DEV;
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -35,7 +35,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         if (!token) return;
 
         // Fetch account summary
-        const summaryRes = await axios.get('http://localhost:8080/api/dashboard/summary', {
+        const summaryRes = await axios.get(`${baseUrl}/dashboard/summary`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -51,17 +51,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
 
         // Fetch monthly savings summary
-        const monthlyRes = await axios.get('http://localhost:8080/api/savings/monthly-summary', {
+        const monthlyRes = await axios.get(`${baseUrl}/savings/monthly-summary`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setMonthlySavings(monthlyRes.data.data);
         // Fetch monthly savings summary
-        const loanRes = await axios.get('http://localhost:8080/api/loans/me', {
+        const loanRes = await axios.get(`${baseUrl}/loans/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setLoansData(loanRes.data.loans)
 
-        const activities = await axios.get(`http://localhost:8080/api/activities`, {
+        const activities = await axios.get(`${baseUrl}/activities`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setActivity(activities.data.data);
@@ -88,7 +88,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       activityLogs,
       // mydynamic data
       loanData,
-      accountSummary: dynaccountSummary || accountSummary,
+      accountSummary: dynaccountSummary || undefined,
       monthlySavings,
       activity,
       isLoading

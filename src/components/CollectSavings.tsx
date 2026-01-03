@@ -6,18 +6,19 @@ interface CollectSavingsProps {
 }
 
 function CollectSavings({ setShowColectionForm }: CollectSavingsProps) {
+  const baseUrl = import.meta.env.VITE_API_URL_DEV;
   const [query, setQuery] = useState('');
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [amount, setAmount] = useState('');
-
+  
   useEffect(() => {
     if (query.length < 3) return;
 
     const fetchUsers = async () => {
       try {
         const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
-        const res = await axios.get(`http://localhost:8080/api/users/search?query=${query}`, {
+        const res = await axios.get(`${baseUrl}/users/search?query=${query}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUsers(res.data.data);
@@ -39,7 +40,7 @@ const handleSubmit = async () => {
 
   try {
     const res = await axios.post(
-      "http://localhost:8080/api/savings",
+      `${baseUrl}/savings`,
       {
         userIdNumber: selectedUser.idNumber,
         amount: Number(amount),

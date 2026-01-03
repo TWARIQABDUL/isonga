@@ -6,6 +6,8 @@ interface User {
   role: string;
   fullName: string;
   token: string;
+  phoneNumber:String,
+  location:String
 }
 
 interface DecodedToken {
@@ -38,6 +40,7 @@ const isTokenValid = (token: string): boolean => {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+const baseUrl = import.meta.env.VITE_API_URL_DEV;
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -57,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -77,7 +80,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: data.email,
         role: data.role,
         fullName: data.fullName,
-        token: data.token
+        token: data.token,
+        phoneNumber:data.phoneNumber,
+        location:data.cell
       };
 
       if (isTokenValid(loggedInUser.token)) {

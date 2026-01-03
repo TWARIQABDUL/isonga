@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/pro-components": "^2.8.10",
+    "antd": "^5.27.2",
     "axios": "^1.10.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.344.0",

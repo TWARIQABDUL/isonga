@@ -120,7 +120,18 @@ export default function Loans() {
       render: (_, loan: any) => (
         <div className="flex space-x-2">
           {user?.role == 'ADMIN' &&
-          
+          <>
+          <button 
+            onClick={() => {
+              setSelectedLoan(loan.id);
+              setShowPaymentForm(true);
+              console.log(selectedLoan);
+              
+            }}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            Make Payment
+          </button>
           <button 
             onClick={() => {
               setSelectedLoan(loan.id);
@@ -128,8 +139,10 @@ export default function Loans() {
             }}
             className="text-blue-600 hover:text-blue-700 text-sm font-medium"
           >
-            Make Payment
+            Preview Loan
           </button>
+          </>
+          
     }
           <button className="text-gray-600 hover:text-gray-700 text-sm font-medium">
             View Details
@@ -382,7 +395,10 @@ export default function Loans() {
               >
                 Cancel
               </button>
-              <button className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+              <button
+              onClick={()=>console.log(selectedLoan)
+              }
+               className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
                 Make Payment
               </button>
             </div>

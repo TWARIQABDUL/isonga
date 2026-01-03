@@ -15,6 +15,9 @@ import Loans from './pages/Loans';
 import LoanRequest from './pages/LoanRequest';
 import Analytics from './pages/Analytics';
 import Profile from './pages/Profile';
+import Testing from './pages/testing';
+import { ConfigProvider } from 'antd';
+import enUS from 'antd/locale/en_US';
 
 const router = createBrowserRouter(
   [
@@ -37,6 +40,8 @@ const router = createBrowserRouter(
         { path: "loan-request", element: <LoanRequest /> },
         { path: "analytics", element: <Analytics /> },
         { path: "profile", element: <Profile /> },
+        { path: "testing", element: <Testing /> },
+
       ],
     },
   ],
@@ -47,13 +52,15 @@ const router = createBrowserRouter(
   }
 );
 
-function App():React.ReactElement {
+function App(): React.ReactElement {
   return (
-    <AuthProvider>
-      <DataProvider>
-        <RouterProvider router={router} />
-      </DataProvider>
-    </AuthProvider>
+    <ConfigProvider locale={enUS}>
+      <AuthProvider>
+        <DataProvider>
+          <RouterProvider router={router} />
+        </DataProvider>
+      </AuthProvider>
+    </ConfigProvider>
   );
 }
 
