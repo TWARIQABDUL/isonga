@@ -3,13 +3,13 @@ import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, 
 import { useData } from '../../context/DataContext';
 import { formatCurrency } from '../../utils/formatters';
 
-export default function SavingsChart():React.ReactElement {
-  const { savingsData } = useData();
+export default function SavingsChart(): React.ReactElement {
+  const { savingsData, monthlySavings, isLoading } = useData();
 
+  console.log('savingsData chart:', monthlySavings);
+  
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      console.log("payloads",payload[0].payload);
-      
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{label}</p>
@@ -25,6 +25,18 @@ export default function SavingsChart():React.ReactElement {
     return null;
   };
 
+  // ✅ Show loader while fetching
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-80">
+        <div className="loader border-4 border-blue-500 border-t-transparent rounded-full w-12 h-12 animate-spin"></div>
+      </div>
+    );
+  }
+
+  // ✅ Use dynamic data or fallback demo data
+  // const chartData = monthlySavings && monthlySavings.length > 0 ? monthlySavings : savingsData;
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <div className="mb-6">
@@ -34,7 +46,7 @@ export default function SavingsChart():React.ReactElement {
       
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={savingsData}>
+          <AreaChart data={monthlySavings}>
             <defs>
               <linearGradient id="savingsGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>

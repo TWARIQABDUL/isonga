@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Check, CreditCard, FileText, Calculator } from '
 import { validateLoanAmount, validateLoanDuration } from '../../utils/validators';
 import { formatCurrency, calculateMonthlyPayment } from '../../utils/formatters';
 import { useData } from '../../context/DataContext';
+import axios from 'axios';
 
 interface LoanFormData {
   amount: number;
@@ -32,33 +33,34 @@ const steps = [
 export default function LoanRequestForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<LoanFormData>({
-    amount: 500000,
+    amount: 1000,
     purpose: '',
     duration: 12,
     income: 0,
     employment: '',
     termsAccepted: false
   });
+  const baseUrl = import.meta.env.VITE_API_URL;
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { accountSummary } = useData();
 
-  const maxLoanAmount = accountSummary.availableCredit;
-  const interestRate = 12; // 12% annual interest rate
+  const maxLoanAmount = accountSummary?.totalSavings;
+  const interestRate = 5; // 5% annual interest rate
 
-  const monthlyPayment = formData.amount > 0 && formData.duration > 0 
+  const monthlyPayment = formData.amount > 0 && formData.duration > 0
     ? calculateMonthlyPayment(formData.amount, interestRate, formData.duration)
     : 0;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const { checked } = e.target as HTMLInputElement;
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : type === 'number' ? Number(value) : value
     }));
-    
+
     // Clear errors when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -69,7 +71,7 @@ export default function LoanRequestForm() {
     const newErrors: Record<string, string> = {};
 
     if (step === 1) {
-      const amountValidation = validateLoanAmount(formData.amount, maxLoanAmount);
+      const amountValidation = validateLoanAmount(formData.amount, maxLoanAmount ?? 0);
       if (!amountValidation.isValid) {
         newErrors.amount = amountValidation.message!;
       }
@@ -117,16 +119,37 @@ export default function LoanRequestForm() {
   const handleSubmit = async () => {
     if (validateStep(3)) {
       setIsSubmitting(true);
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setIsSubmitting(false);
-      alert('Loan request submitted successfully! You will receive a confirmation email shortly.');
-      
+      try {
+        const submit = await axios.post(`${baseUrl}/loans`, {
+          amount: formData.amount,
+          purpose: formData.purpose,
+          duration: formData.duration,
+          interestRate: 5
+        },
+          {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('user') || '{}')?.token}` }
+          }
+        )
+        const resp = await submit.data;
+        console.log("Loan request response:", resp);
+
+      } catch (error) {
+        console.log("Error submitting loan request:", error);
+        alert(error.response?.data?.message || 'Failed to submit loan request. Please try again later.');
+        setIsSubmitting(false);
+        
+      }
+
+      // await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // setIsSubmitting(false);
+      // alert('Loan request submitted successfully! You will receive a confirmation email shortly.');
+
       // Reset form
       setFormData({
-        amount: 500000,
+        amount: 1000,
         purpose: '',
         duration: 12,
         income: 0,
@@ -146,10 +169,10 @@ export default function LoanRequestForm() {
             <div key={step.id} className="flex items-center">
               <div className={`
                 flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors
-                ${currentStep > step.id 
-                  ? 'bg-green-500 border-green-500 text-white' 
-                  : currentStep === step.id 
-                    ? 'bg-blue-600 border-blue-600 text-white' 
+                ${currentStep > step.id
+                  ? 'bg-green-500 border-green-500 text-white'
+                  : currentStep === step.id
+                    ? 'bg-blue-600 border-blue-600 text-white'
                     : 'bg-white border-gray-300 text-gray-500'
                 }
               `}>
@@ -160,16 +183,14 @@ export default function LoanRequestForm() {
                 )}
               </div>
               <div className="ml-3">
-                <p className={`text-sm font-medium ${
-                  currentStep >= step.id ? 'text-gray-900' : 'text-gray-500'
-                }`}>
+                <p className={`text-sm font-medium ${currentStep >= step.id ? 'text-gray-900' : 'text-gray-500'
+                  }`}>
                   {step.name}
                 </p>
               </div>
               {index < steps.length - 1 && (
-                <div className={`w-20 h-0.5 mx-4 ${
-                  currentStep > step.id ? 'bg-green-500' : 'bg-gray-300'
-                }`} />
+                <div className={`w-20 h-0.5 mx-4 ${currentStep > step.id ? 'bg-green-500' : 'bg-gray-300'
+                  }`} />
               )}
             </div>
           ))}
@@ -181,7 +202,7 @@ export default function LoanRequestForm() {
         {currentStep === 1 && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Loan Details</h2>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Loan Amount (RWF)
@@ -190,16 +211,16 @@ export default function LoanRequestForm() {
                 type="range"
                 name="amount"
                 value={formData.amount}
-                min="50000"
+                min="1000"
                 max={maxLoanAmount}
-                step="50000"
+                step="500"
                 onChange={handleInputChange}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
               />
               <div className="flex justify-between text-sm text-gray-500 mt-1">
-                <span>50K</span>
+                <span>1000</span>
                 <span className="font-medium text-blue-600">{formatCurrency(formData.amount)}</span>
-                <span>{formatCurrency(maxLoanAmount)}</span>
+                <span>{formatCurrency(maxLoanAmount ?? 0)}</span>
               </div>
               {errors.amount && <p className="mt-1 text-sm text-red-600">{errors.amount}</p>}
             </div>
@@ -212,9 +233,8 @@ export default function LoanRequestForm() {
                 name="purpose"
                 value={formData.purpose}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.purpose ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.purpose ? 'border-red-300' : 'border-gray-300'
+                  }`}
               >
                 <option value="">Select loan purpose</option>
                 {loanPurposes.map(purpose => (
@@ -232,11 +252,10 @@ export default function LoanRequestForm() {
                 name="duration"
                 value={formData.duration}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.duration ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.duration ? 'border-red-300' : 'border-gray-300'
+                  }`}
               >
-                {[6, 12, 18, 24, 36, 48, 60].map(months => (
+                {[1, 2, 3].map(months => (
                   <option key={months} value={months}>{months} months</option>
                 ))}
               </select>
@@ -264,7 +283,7 @@ export default function LoanRequestForm() {
         {currentStep === 2 && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Personal Information</h2>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Monthly Income (RWF)
@@ -274,9 +293,8 @@ export default function LoanRequestForm() {
                 name="income"
                 value={formData.income}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.income ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.income ? 'border-red-300' : 'border-gray-300'
+                  }`}
                 placeholder="Enter your monthly income"
               />
               {errors.income && <p className="mt-1 text-sm text-red-600">{errors.income}</p>}
@@ -290,9 +308,8 @@ export default function LoanRequestForm() {
                 name="employment"
                 value={formData.employment}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.employment ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.employment ? 'border-red-300' : 'border-gray-300'
+                  }`}
               >
                 <option value="">Select employment status</option>
                 <option value="employed">Employed</option>
@@ -318,9 +335,8 @@ export default function LoanRequestForm() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-yellow-700">Payment Ratio:</span>
-                    <span className={`font-medium ${
-                      (monthlyPayment / formData.income) * 100 > 30 ? 'text-red-600' : 'text-green-600'
-                    }`}>
+                    <span className={`font-medium ${(monthlyPayment / formData.income) * 100 > 30 ? 'text-red-600' : 'text-green-600'
+                      }`}>
                       {((monthlyPayment / formData.income) * 100).toFixed(1)}%
                     </span>
                   </div>
@@ -333,7 +349,7 @@ export default function LoanRequestForm() {
         {currentStep === 3 && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Review & Submit</h2>
-            
+
             <div className="bg-gray-50 rounded-lg p-4 space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">Loan Amount:</span>

@@ -16,7 +16,8 @@ import LoanChart from '../components/charts/LoanChart';
 import Table from '../components/layout/Table';
 import Badge from '../components/layout/Badge';
 import { useData } from '../context/DataContext';
-import { formatCurrency, formatDate } from '../utils/formatters';
+import { formatCurrency, formatDate, formatDateFromMonths } from '../utils/formatters';
+import { useAuth } from '../context/AuthContext';
 
 interface LoanPayment {
   id: string;
@@ -28,8 +29,11 @@ interface LoanPayment {
 }
 
 export default function Loans() {
-  const { loansData, accountSummary } = useData();
+  const{user}=useAuth()
+  const { loansData, loanData,accountSummary } = useData();
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+
+
   const [selectedLoan, setSelectedLoan] = useState<string | null>(null);
 
   // Mock payment schedule data
@@ -115,6 +119,19 @@ export default function Loans() {
       label: 'Actions',
       render: (_, loan: any) => (
         <div className="flex space-x-2">
+          {user?.role == 'ADMIN' &&
+          <>
+          <button 
+            onClick={() => {
+              setSelectedLoan(loan.id);
+              setShowPaymentForm(true);
+              console.log(selectedLoan);
+              
+            }}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            Make Payment
+          </button>
           <button 
             onClick={() => {
               setSelectedLoan(loan.id);
@@ -122,8 +139,11 @@ export default function Loans() {
             }}
             className="text-blue-600 hover:text-blue-700 text-sm font-medium"
           >
-            Make Payment
+            Preview Loan
           </button>
+          </>
+          
+    }
           <button className="text-gray-600 hover:text-gray-700 text-sm font-medium">
             View Details
           </button>
@@ -171,9 +191,9 @@ export default function Loans() {
     }
   ];
 
-  const activeLoans = loansData.filter(loan => loan.status === 'active');
+  const activeLoans = loanData.filter(loan => loan.status === 'active');
   const totalMonthlyPayments = activeLoans.reduce((sum, loan) => sum + loan.monthlyPayment, 0);
-  const pendingPayments = upcomingPayments.filter(payment => payment.status === 'pending');
+  const pendingPayments = loanData.filter(payment => payment.status === 'pending');
 
   return (
     <div className="space-y-6">
@@ -184,6 +204,7 @@ export default function Loans() {
           <p className="text-gray-600">Manage your loans and track payments</p>
         </div>
         <div className="flex space-x-3">
+          {user?.role === 'ADMIN' && 
           <button 
             onClick={() => setShowPaymentForm(true)}
             className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
@@ -191,6 +212,7 @@ export default function Loans() {
             <DollarSign className="w-4 h-4" />
             <span>Make Payment</span>
           </button>
+}
           <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
             <Plus className="w-4 h-4" />
             <span>Request Loan</span>
@@ -239,12 +261,14 @@ export default function Loans() {
           </div>
         </div>
         <div className="p-6">
-          <Table columns={loanColumns} data={loansData} />
+          <Table columns={loanColumns} data={loanData} />
         </div>
       </div>
 
       {/* Payment Schedule */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+
+      {/* this feature is not yet implemented */}
+      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div>
@@ -259,7 +283,7 @@ export default function Loans() {
         <div className="p-6">
           <Table columns={paymentColumns} data={upcomingPayments} />
         </div>
-      </div>
+      </div> */}
 
       {/* Upcoming Payments Alert */}
       {pendingPayments.length > 0 && (
@@ -274,8 +298,8 @@ export default function Loans() {
                 {pendingPayments.slice(0, 3).map((payment) => (
                   <div key={payment.id} className="flex items-center justify-between bg-white rounded-lg p-3">
                     <div>
-                      <p className="font-medium text-gray-900">Loan #{payment.loanId}</p>
-                      <p className="text-sm text-gray-600">Due: {formatDate(payment.dueDate)}</p>
+                      <p className="font-medium text-gray-900">Loan #{payment.id}</p>
+                      <p className="text-sm text-gray-600">Due: {payment.approvalDate ? formatDateFromMonths(payment.duration, payment.approvalDate) : '-'}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-gray-900">{formatCurrency(payment.amount)}</p>
@@ -371,13 +395,18 @@ export default function Loans() {
               >
                 Cancel
               </button>
-              <button className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+              <button
+              onClick={()=>console.log(selectedLoan)
+              }
+               className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
                 Make Payment
               </button>
             </div>
           </div>
         </div>
       )}
+      {/* Collect Savings Temporarily */}
+      
     </div>
   );
 }

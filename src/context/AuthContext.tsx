@@ -1,10 +1,18 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {jwtDecode} from 'jwt-decode';
 
 interface User {
   email: string;
   role: string;
   fullName: string;
   token: string;
+  phoneNumber:String,
+  location:String
+}
+
+interface DecodedToken {
+  exp: number;
+  [key: string]: any;
 }
 
 interface AuthContextType {
@@ -17,14 +25,34 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// ✅ Helper to validate token
+const isTokenValid = (token: string): boolean => {
+  try {
+    const decoded: DecodedToken = jwtDecode(token);
+    const currentTime = Date.now() / 1000;
+    return decoded.exp > currentTime;
+  } catch (error) {
+    console.error('Invalid token:', error);
+    return false;
+  }
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+const baseUrl = import.meta.env.VITE_API_URL_DEV;
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const userObj: User = JSON.parse(storedUser);
+      if (isTokenValid(userObj.token)) {
+        setUser(userObj);
+      } else {
+        console.warn("Token expired or invalid, logging out.");
+        localStorage.removeItem('user');
+        setUser(null);
+      }
     }
     setIsLoading(false);
   }, []);
@@ -32,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -52,15 +80,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: data.email,
         role: data.role,
         fullName: data.fullName,
-        token: data.token
+        token: data.token,
+        phoneNumber:data.phoneNumber,
+        location:data.cell
       };
 
-      setUser(loggedInUser);
-      localStorage.setItem('user', JSON.stringify(loggedInUser));
-      console.log("Successful login");
-
-      setIsLoading(false);
-      return true;
+      if (isTokenValid(loggedInUser.token)) {
+        setUser(loggedInUser);
+        localStorage.setItem('user', JSON.stringify(loggedInUser));
+        console.log("Successful login");
+        setIsLoading(false);
+        return true;
+      } else {
+        console.error("Received invalid or expired token during login.");
+        setIsLoading(false);
+        return false;
+      }
     } catch (error) {
       console.error("Login error:", error);
       setIsLoading(false);

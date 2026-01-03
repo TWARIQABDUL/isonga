@@ -33,7 +33,7 @@ export default function DashboardCard({
         {trend && (
           <div className={`flex items-center space-x-1 text-sm ${
             trend.isPositive ? 'text-green-600' : 'text-red-600'
-          }`}>jjjj
+          }`}>
             <span>{trend.isPositive ? '+' : ''}{trend.value}%</span>
           </div>
         )}

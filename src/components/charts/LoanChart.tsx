@@ -1,12 +1,15 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useData } from '../../context/DataContext';
 import { formatCurrency } from '../../utils/formatters';
 
 export default function LoanChart() {
-  const { loansData } = useData();
+  const {loanData, isLoading } = useData();
 
-  const loansByStatus = loansData.reduce((acc, loan) => {
+  // ✅ Fallback to empty array if loansData is undefined
+  const loans = loanData ?? [];
+
+  const loansByStatus = loans.reduce((acc, loan) => {
     acc[loan.status] = (acc[loan.status] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
@@ -14,7 +17,7 @@ export default function LoanChart() {
   const pieData = Object.entries(loansByStatus).map(([status, count]) => ({
     name: status.charAt(0).toUpperCase() + status.slice(1),
     value: count,
-    amount: loansData
+    amount: loans
       .filter(loan => loan.status === status)
       .reduce((sum, loan) => sum + loan.amount, 0)
   }));
@@ -41,7 +44,7 @@ export default function LoanChart() {
         <h3 className="text-lg font-semibold text-gray-900 mb-2">Loan Overview</h3>
         <p className="text-gray-600">Distribution of your loans by status</p>
       </div>
-      
+
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -66,7 +69,7 @@ export default function LoanChart() {
       <div className="mt-4 grid grid-cols-2 gap-4">
         {pieData.map((entry, index) => (
           <div key={entry.name} className="flex items-center space-x-2">
-            <div 
+            <div
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: COLORS[index % COLORS.length] }}
             ></div>
