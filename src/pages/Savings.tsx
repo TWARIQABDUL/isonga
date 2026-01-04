@@ -173,19 +173,19 @@ export default function Savings() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <DashboardCard
           title="Total Savings"
-          value={formatCurrency(accountSummary.totalSavings)}
+          value={formatCurrency(accountSummary?.totalSavings || 0)}
           icon={PiggyBank}
           trend={{ value: 12.5, isPositive: true }}
         />
         <DashboardCard
           title="Monthly Contribution"
-          value={formatCurrency(accountSummary.monthlyContribution)}
+          value={formatCurrency(accountSummary?.monthlyContribution || 0)}
           icon={TrendingUp}
           trend={{ value: 8.1, isPositive: true }}
         />
         <DashboardCard
           title="Interest Earned"
-          value={formatCurrency(accountSummary.interestEarned)}
+          value={formatCurrency(accountSummary?.interestEarned || 0)}
           icon={DollarSign}
           trend={{ value: 15.3, isPositive: true }}
         />

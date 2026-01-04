@@ -3,6 +3,15 @@ import { Card, Typography, Divider } from 'antd';
 import { useState } from 'react';
 import axios from 'axios';
 
+
+interface SavingsReportItem {
+  savings_id: string;
+  full_name: string;
+  id_number: string;
+  total_amount: string | number;
+  date_received: string;
+}
+
 const columns = [
   { title: 'Full Name', dataIndex: 'full_name', key: 'full_name' },
   { title: 'ID Number', dataIndex: 'id_number', key: 'id_number' },
@@ -32,7 +41,7 @@ const Testing = () => {
           setLoading(true);
           try {
             const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
-            const res = await axios.get(
+            const res = await axios.get<SavingsReportItem[]>(
               `${import.meta.env.VITE_API_URL_DEV}/savings/dayreport`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
