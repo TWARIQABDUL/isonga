@@ -7,8 +7,11 @@ import {
   User, 
   FileText,
   TrendingUp,
-  LucideReceiptPoundSterling
+  LucideReceiptPoundSterling,
+  UserPlus,
+  Users
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -23,9 +26,12 @@ const navigation = [
   { name: 'Analytics', href: '/analytics', icon: TrendingUp },
   { name: 'Day Report', href: '/report', icon: LucideReceiptPoundSterling },
   { name: 'Profile', href: '/profile', icon: User },
+  { name: 'Users', href: '/users', icon: Users, adminOnly: true },
+  { name: 'Create User', href: '/create-user', icon: UserPlus, adminOnly: true },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const { user } = useAuth();
   return (
     <>
       {/* Mobile overlay */}
@@ -58,23 +64,27 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
-            {navigation.map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.href}
-                onClick={onClose}
-                className={({ isActive }) =>
-                  `flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`
-                }
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="font-medium">{item.name}</span>
-              </NavLink>
-            ))}
+            {navigation.map((item) => {
+              if (item.adminOnly && user?.role !== 'ADMIN') return null;
+              
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.href}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }`
+                  }
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span className="font-medium">{item.name}</span>
+                </NavLink>
+              );
+            })}
           </nav>
 
           {/* Footer */}

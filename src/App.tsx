@@ -16,6 +16,8 @@ import LoanRequest from './pages/LoanRequest';
 import Analytics from './pages/Analytics';
 import Profile from './pages/Profile';
 import Testing from './pages/testing';
+import CreateUser from './pages/CreateUser';
+import Users from './pages/Users';
 import { ConfigProvider } from 'antd';
 import enUS from 'antd/locale/en_US';
 
@@ -41,6 +43,22 @@ const router = createBrowserRouter(
         { path: "analytics", element: <Analytics /> },
         { path: "profile", element: <Profile /> },
         { path: "report", element: <Testing /> },
+        { 
+          path: "create-user", 
+          element: (
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <CreateUser />
+            </ProtectedRoute>
+          ) 
+        },
+        { 
+          path: "users", 
+          element: (
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <Users />
+            </ProtectedRoute>
+          ) 
+        },
 
       ],
     },
