@@ -15,6 +15,7 @@ export interface LoanData {
   interestRate: number;
   monthlyPayment: number;
   remainingBalance: number;
+  createdAt?: string;
 }
 
 export interface Activity {
@@ -33,6 +34,7 @@ export interface AccountSummary {
   interestEarned: number;
   creditScore: number;
   availableCredit: number;
+  totalUsers?: number;
 }
 
 export const savingsData: SavingsData[] = [
@@ -75,7 +77,8 @@ export const loansData: LoanData[] = [
     approvalDate: "2025-07-04",
     interestRate: 5.00,
     monthlyPayment: 105000,
-    createdAt: "2025-07-01T22:46:51"
+    createdAt: "2025-07-01T22:46:51",
+    remainingBalance: 400000
   },
   {
     id: '2',

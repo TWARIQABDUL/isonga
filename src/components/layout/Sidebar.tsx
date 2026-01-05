@@ -25,6 +25,7 @@ const navigation = [
   { name: 'Request Loan', href: '/loan-request', icon: FileText },
   { name: 'Analytics', href: '/analytics', icon: TrendingUp },
   { name: 'Day Report', href: '/report', icon: LucideReceiptPoundSterling },
+  { name: 'Savings Report', href: '/savings-report', icon: FileText, adminOnly: true },
   { name: 'Profile', href: '/profile', icon: User },
   { name: 'Users', href: '/users', icon: Users, adminOnly: true },
   { name: 'Create User', href: '/create-user', icon: UserPlus, adminOnly: true },

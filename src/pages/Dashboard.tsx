@@ -6,7 +6,8 @@ import {
   Award,
   ArrowUpRight,
   ArrowDownRight,
-  Plus
+  Plus,
+  Users
 } from 'lucide-react';
 import DashboardCard from '../components/layout/DashboardCard';
 import SavingsChart from '../components/charts/SavingsChart';
@@ -18,7 +19,7 @@ import { formatCurrency, formatDate } from '../utils/formatters';
 import { useAuth } from '../context/AuthContext';
 import CollectSavings from '../components/CollectSavings';
 export default function Dashboard():React.ReactElement {
-  const { accountSummary, activityLogs,activity, isLoading } = useData();
+  const { accountSummary, activity, isLoading } = useData();
     const [showColectionForm, setShowColectionForm] = useState(false);
   const{user}=useAuth()
   console.log('accountSummary:', user);
@@ -99,28 +100,53 @@ export default function Dashboard():React.ReactElement {
       {/* Metrics Cards */}
       {!isLoading &&
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <DashboardCard
-          title="Total Savings"
-          value={formatCurrency(accountSummary?.totalSavings ?? 0)}
-          icon={PiggyBank}
-          trend={{ value: 12.5, isPositive: true }}
-        />
-        <DashboardCard
-          title="Active Loooans"
-          value={formatCurrency(accountSummary?.totalLoans ?? 0)}
-          icon={CreditCard}
-          trend={{ value: -5.2, isPositive: false }}
-        />
-        <DashboardCard
-          title="Monthly Contribution"
-          value={formatCurrency(accountSummary?.monthlyContribution ?? 0)}
-          icon={TrendingUp}        />
-        <DashboardCard
-          title="Credit Score"
-          value={accountSummary?.creditScore ?? 0}
-          icon={Award}
-          trend={{ value: 2.3, isPositive: true }}
-        />
+        {user?.role === 'ADMIN' ? (
+           <>
+              <DashboardCard
+                title="Total Users"
+                value={accountSummary?.totalUsers?.toString() ?? '0'}
+                icon={Users}
+                trend={{ value: 10, isPositive: true }}
+              />
+              <DashboardCard
+                title="Total Savings"
+                value={formatCurrency(accountSummary?.totalSavings ?? 0)}
+                icon={PiggyBank}
+                trend={{ value: 12.5, isPositive: true }}
+              />
+              <DashboardCard
+                title="Total Loans"
+                value={formatCurrency(accountSummary?.totalLoans ?? 0)}
+                icon={CreditCard}
+                trend={{ value: -5.2, isPositive: false }}
+              />
+           </>
+        ) : (
+           <>
+              <DashboardCard
+                title="Total Savings"
+                value={formatCurrency(accountSummary?.totalSavings ?? 0)}
+                icon={PiggyBank}
+                trend={{ value: 12.5, isPositive: true }}
+              />
+              <DashboardCard
+                title="Active Loans"
+                value={formatCurrency(accountSummary?.totalLoans ?? 0)}
+                icon={CreditCard}
+                trend={{ value: -5.2, isPositive: false }}
+              />
+              <DashboardCard
+                title="Monthly Contribution"
+                value={formatCurrency(accountSummary?.monthlyContribution ?? 0)}
+                icon={TrendingUp}        />
+              <DashboardCard
+                title="Credit Score"
+                value={accountSummary?.creditScore ?? 0}
+                icon={Award}
+                trend={{ value: 2.3, isPositive: true }}
+              />
+           </>
+        )}
       </div>
 }
 

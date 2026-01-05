@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
-import { savingsData, loansData, activityLogs, accountSummary, AccountSummary } from '../data';
+import { savingsData, loansData, activityLogs, AccountSummary } from '../data';
 import axios from 'axios';
 
 interface SavingsData {
@@ -31,49 +31,68 @@ const baseUrl = import.meta.env.VITE_API_URL_DEV;
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
+        const userStr = localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
+        const token = user?.token;
+        
         if (!token) return;
 
-        // Fetch account summary
-        const summaryRes = await axios.get(`${baseUrl}/dashboard/summary`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const headers = { Authorization: `Bearer ${token}` };
+        const isAdmin = user?.role === 'ADMIN';
 
+        // Define fetch promises
+        const summaryUrl = isAdmin 
+          ? `${baseUrl}/dashboard/admin-summary` 
+          : `${baseUrl}/dashboard/summary`;
 
-        setAccountSummary({
-          ...summaryRes.data.data,
-          interestEarned: 0, // Placeholder
-          creditScore: 'Good' // Placeholder
-        });
+        const fetchSummary = axios.get(summaryUrl, { headers })
+          .then(res => {
+            if (isAdmin) {
+              setAccountSummary({
+                totalSavings: res.data.data.totalSavings,
+                totalLoans: res.data.data.totalLoans,
+                monthlyContribution: 0, // Not applicable for admin
+                interestEarned: 0,      // Not applicable for admin
+                creditScore: 0,         // Not applicable for admin
+                availableCredit: 0,      // Not applicable for admin
+                totalUsers: res.data.data.totalUsers
+              });
+            } else {
+              setAccountSummary({
+                ...res.data.data,
+                interestEarned: 0, 
+                creditScore: 'Good'
+              });
+            }
+            console.log("accountSummary loaded:", res.data.data);
+          })
+          .catch(err => console.error("Failed to fetch summary:", err));
 
-        console.log("accountSummary here:", summaryRes.data.data);
+        const fetchMonthly = axios.get(`${baseUrl}/savings/monthly-summary`, { headers })
+          .then(res => {
+            setMonthlySavings(res.data.data);
+            console.log("monthlySavings loaded");
+          })
+          .catch(err => console.error("Failed to fetch monthly savings:", err));
 
+        const fetchLoans = axios.get(`${baseUrl}/loans/me`, { headers })
+          .then(res => {
+             setLoansData(res.data.loans);
+          })
+          .catch(err => console.error("Failed to fetch loans:", err));
 
+        const fetchActivities = axios.get(`${baseUrl}/activities`, { headers })
+          .then(res => {
+            setActivity(res.data.data);
+            console.log("activities loaded:", res.data.data);
+          })
+          .catch(err => console.error("Failed to fetch activities:", err));
 
-        // Fetch monthly savings summary
-        const monthlyRes = await axios.get(`${baseUrl}/savings/monthly-summary`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        console.log("monthlyRes here:");
-        setMonthlySavings(monthlyRes.data.data);
-        // Fetch monthly savings summary
-        const loanRes = await axios.get(`${baseUrl}/loans/me`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setLoansData(loanRes.data.loans)
-
-        const activities = await axios.get(`${baseUrl}/activities`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setActivity(activities.data.data);
-        console.log("activities here:", activities.data.data);
-
-        setIsLoading(false);
-
-
-        //  console.log(loanData);
+        // Execute all
+        await Promise.allSettled([fetchSummary, fetchMonthly, fetchLoans, fetchActivities]);
+        
       } catch (err) {
-        console.error('Error fetching dashboard data:', err);
+        console.error('Unexpected error in dashboard data fetch:', err);
       } finally {
         setIsLoading(false);
       }

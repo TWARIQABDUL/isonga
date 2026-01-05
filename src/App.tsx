@@ -18,6 +18,7 @@ import Profile from './pages/Profile';
 import Testing from './pages/testing';
 import CreateUser from './pages/CreateUser';
 import Users from './pages/Users';
+import AdminSavingsReport from './pages/AdminSavingsReport';
 import { ConfigProvider } from 'antd';
 import enUS from 'antd/locale/en_US';
 
@@ -56,6 +57,14 @@ const router = createBrowserRouter(
           element: (
             <ProtectedRoute allowedRoles={['ADMIN']}>
               <Users />
+            </ProtectedRoute>
+          ) 
+        },
+        { 
+          path: "savings-report", 
+          element: (
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminSavingsReport />
             </ProtectedRoute>
           ) 
         },

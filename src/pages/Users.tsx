@@ -1,8 +1,8 @@
-import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
-import { Tag, message, Typography } from 'antd';
+import { ActionType, ProColumns, ProTable, ModalForm, ProFormText } from '@ant-design/pro-components';
+import { Tag, message, Typography, Button } from 'antd';
 import axios from 'axios';
-import { useRef } from 'react';
-import { Users as UsersIcon } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Users as UsersIcon, Edit } from 'lucide-react';
 
 interface User {
   id: number;
@@ -17,6 +17,28 @@ interface User {
 
 const Users = () => {
   const actionRef = useRef<ActionType>();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentRow, setCurrentRow] = useState<User | null>(null);
+
+  const handleUpdate = async (values: Partial<User>) => {
+    if (!currentRow) return;
+    try {
+      const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
+      await axios.patch(
+        `${import.meta.env.VITE_API_URL_DEV}/users/${currentRow.id}`,
+        values,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      message.success('User updated successfully');
+      setModalVisible(false);
+      actionRef.current?.reload();
+    } catch (error) {
+      console.error('Failed to update user:', error);
+      message.error('Failed to update user');
+    }
+  };
 
   const columns: ProColumns<User>[] = [
     {
@@ -71,6 +93,23 @@ const Users = () => {
       valueType: 'dateTime',
       sorter: (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       search: false,
+    },
+    {
+      title: 'Actions',
+      valueType: 'option',
+      render: (_, record) => [
+        <Button
+          key="edit"
+          type="link"
+          icon={<Edit className="w-4 h-4" />}
+          onClick={() => {
+            setCurrentRow(record);
+            setModalVisible(true);
+          }}
+        >
+          Edit
+        </Button>,
+      ],
     },
   ];
 
@@ -152,6 +191,34 @@ const Users = () => {
             dateFormatter="string"
             headerTitle="All Users"
         />
+        
+        <ModalForm
+            title="Edit User"
+            width="400px"
+            visible={modalVisible}
+            onVisibleChange={setModalVisible}
+            initialValues={currentRow || {}}
+            onFinish={handleUpdate}
+            modalProps={{
+                destroyOnClose: true,
+            }}
+        >
+            <ProFormText
+                name="fullName"
+                label="Full Name"
+                placeholder="John Doe"
+            />
+            <ProFormText
+                name="phoneNumber"
+                label="Phone Number"
+                placeholder="0712345678"
+            />
+            <ProFormText
+                name="cell"
+                label="Location (Cell)"
+                placeholder="Johannesburg"
+            />
+        </ModalForm>
     </div>
   );
 };
