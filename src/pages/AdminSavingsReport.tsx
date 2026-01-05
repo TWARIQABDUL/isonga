@@ -7,11 +7,17 @@ import { formatCurrency, formatDate } from '../utils/formatters';
 
 interface SavingsTransaction {
   id: string; 
-  userIdNumber: string;
-  fullName?: string;
+  user_id_number: string;
+  full_name?: string;
   amount: number;
-  type: 'deposit' | 'withdrawal';
-  date: string;
+  // type might be optional or inferred if not present in API provided by user, 
+  // but let's keep it and handle partial data gracefully
+  type?: 'deposit' | 'withdrawal'; 
+  created_at: string;
+  date_received?: string;
+  week_number?: number;
+  year?: number;
+  month?: number;
 }
 
 const AdminSavingsReport = () => {
@@ -25,17 +31,22 @@ const AdminSavingsReport = () => {
         },
         {
             title: 'User ID Number',
-            dataIndex: 'userIdNumber',
+            dataIndex: 'user_id_number',
             fieldProps: {
                 placeholder: 'Filter by ID Number',
             }
+        },
+        {
+            title: 'Full Name',
+            dataIndex: 'full_name',
+            search: false,
         },
         {
             title: 'Amount',
             dataIndex: 'amount',
             search: false,
             render: (_, record) => (
-                <span className={record.type === 'deposit' ? 'text-green-600' : 'text-red-600'}>
+                <span className={record.type === 'withdrawal' ? 'text-red-600' : 'text-green-600'}>
                     {formatCurrency(record.amount)}
                 </span>
             ),
@@ -44,18 +55,21 @@ const AdminSavingsReport = () => {
             title: 'Type',
             dataIndex: 'type',
             search: false,
-             render: (_, record) => (
-                <Tag color={record.type === 'deposit' ? 'green' : 'red'}>
-                    {record.type.toUpperCase()}
-                </Tag>
-            ),
+             render: (_, record) => {
+                 const type = record.type || 'deposit'; // Default to deposit if missing
+                 return (
+                    <Tag color={type === 'deposit' ? 'green' : 'red'}>
+                        {type.toUpperCase()}
+                    </Tag>
+                );
+             },
         },
         {
             title: 'Date',
-            dataIndex: 'date',
+            dataIndex: 'created_at',
             valueType: 'dateTime',
             search: false,
-            render: (_, record) => formatDate(record.date),
+            render: (_, record) => formatDate(record.created_at),
         },
         {
             title: 'Year',
@@ -76,7 +90,7 @@ const AdminSavingsReport = () => {
         },
         {
             title: 'Week',
-            dataIndex: 'week',
+            dataIndex: 'week_number',
             valueType: 'digit',
              hideInTable: true,
              fieldProps: {
@@ -101,10 +115,10 @@ const AdminSavingsReport = () => {
                      try {
                         const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
                         const queryParams = {
-                            userIdNumber: params.userIdNumber,
+                            userIdNumber: params.user_id_number,
                             year: params.year,
                             month: params.month,
-                            week: params.week
+                            week: params.week_number
                         };
 
                         const response = await axios.get(
@@ -115,11 +129,6 @@ const AdminSavingsReport = () => {
                             }
                         );
                         
-                        // Assuming response format: { success: true, list: [...] } or just array
-                        // The user request example doesn't specify API response structure strictly other than success,
-                        // but usually it's `data` or a list.
-                        // I'll assume standard { data: [...] } or { list: [...] } or just [...]
-                        // Let's protect against various forms.
                         let data = [];
                         if (Array.isArray(response.data)) {
                              data = response.data;
