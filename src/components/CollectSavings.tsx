@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useData } from '../context/DataContext';
 
 interface CollectSavingsProps {
   setShowColectionForm: (show: boolean) => void;
@@ -7,6 +8,7 @@ interface CollectSavingsProps {
 
 function CollectSavings({ setShowColectionForm }: CollectSavingsProps) {
   const baseUrl = import.meta.env.VITE_API_URL_DEV;
+  const { refreshData } = useData();
   const [query, setQuery] = useState('');
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -56,6 +58,7 @@ const handleSubmit = async () => {
 
     console.log("Payment Successful:", res.data);
     alert("Payment successful!");
+    refreshData();
     setAmount('');
     setQuery('');
     setSelectedUser(null);

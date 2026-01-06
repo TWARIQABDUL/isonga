@@ -20,7 +20,7 @@ export default function Layout():React.ReactElement {
       <div className="flex">
         <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
         
-        <div className="flex-1 lg:ml-14">
+        <div className="flex-1 lg:ml-64">
           <Navbar onMenuToggle={toggleSidebar} isSidebarOpen={isSidebarOpen} />
           
           <main className="p-6">

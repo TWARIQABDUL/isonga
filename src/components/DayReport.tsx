@@ -16,18 +16,19 @@ const columns = [
   { title: 'Full Name', dataIndex: 'full_name', key: 'full_name' },
   { title: 'ID Number', dataIndex: 'id_number', key: 'id_number' },
   { title: 'Total Amount', dataIndex: 'total_amount', key: 'total_amount', valueType: 'money' },
-  { title: 'Date Received', dataIndex: 'date_received', key: 'date_received', valueType: 'date', sorter: (a, b) => new Date(a.date_received).getTime() - new Date(b.date_received).getTime() },
+  { title: 'Date Received', dataIndex: 'date_received', key: 'date_received', valueType: 'date', sorter: (a: any, b: any) => new Date(a.date_received).getTime() - new Date(b.date_received).getTime() },
 ];
 
-const Testing = () => {
+const DayReport = () => {
   const [loading, setLoading] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
   
   return (
     <Card
       title="Daily Savings Report"
-      style={{ maxWidth: 900, margin: '32px auto', boxShadow: '0 2px 8px #f0f1f2' }}
+      style={{ boxShadow: '0 2px 8px #f0f1f2' }}
       bodyStyle={{ padding: 24 }}
+      bordered={false}
     >
       <ProTable
         columns={columns}
@@ -92,4 +93,4 @@ const Testing = () => {
   );
 };
 
-export default Testing;
+export default DayReport;

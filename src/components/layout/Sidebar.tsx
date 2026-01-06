@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -24,7 +23,6 @@ const navigation = [
   { name: 'Loans', href: '/loans', icon: CreditCard },
   { name: 'Request Loan', href: '/loan-request', icon: FileText },
   { name: 'Analytics', href: '/analytics', icon: TrendingUp },
-  { name: 'Day Report', href: '/report', icon: LucideReceiptPoundSterling },
   { name: 'Savings Report', href: '/savings-report', icon: FileText, adminOnly: true },
   { name: 'Profile', href: '/profile', icon: User },
   { name: 'Users', href: '/users', icon: Users, adminOnly: true },
@@ -46,7 +44,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar */}
       <div className={`
         fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50
-        lg:relative lg:translate-x-0
+        lg:fixed lg:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex flex-col h-full">
@@ -64,7 +62,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-2">
+          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             {navigation.map((item) => {
               if (item.adminOnly && user?.role !== 'ADMIN') return null;
               
@@ -88,20 +86,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             })}
           </nav>
 
-          {/* Footer */}
-          <div className="p-4 border-t border-gray-200">
-            <div className="bg-blue-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-blue-900 mb-1">
-                Need help?
-              </h3>
-              <p className="text-xs text-blue-700 mb-2">
-                Contact our support team for assistance
-              </p>
-              <button className="text-xs bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition-colors">
-                Get Support
-              </button>
-            </div>
-          </div>
+          
         </div>
       </div>
     </>

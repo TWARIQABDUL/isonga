@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Form, Input, Button, Card, Select, message } from 'antd'; // Using Ant Design components as seen in other files
 import axios from 'axios';
 import { UserPlus } from 'lucide-react';
+import { useData } from '../context/DataContext';
 
 const { Option } = Select;
 
 const CreateUser = () => {
     const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
+    const { refreshData } = useData();
 
     const onFinish = async (values: any) => {
         setLoading(true);
@@ -24,6 +26,7 @@ const CreateUser = () => {
                 }
             );
             message.success('User created successfully');
+            refreshData();
             form.resetFields();
         } catch (error: any) {
             console.error('Registration failed:', error);
