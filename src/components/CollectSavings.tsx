@@ -11,6 +11,7 @@ function CollectSavings({ setShowColectionForm }: CollectSavingsProps) {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [amount, setAmount] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   useEffect(() => {
     if (query.length < 3) return;
@@ -32,12 +33,14 @@ function CollectSavings({ setShowColectionForm }: CollectSavingsProps) {
     return () => clearTimeout(debounce);
   }, [query]);
 const handleSubmit = async () => {
+  if (isSubmitting) return;
   const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
   if (!selectedUser || !amount || !token) {
     alert("Select a user, enter amount, and make sure you're logged in.");
     return;
   }
 
+  setIsSubmitting(true);
   try {
     const res = await axios.post(
       `${baseUrl}/savings`,
@@ -60,6 +63,8 @@ const handleSubmit = async () => {
   } catch (error) {
     console.error("Payment failed:", error);
     alert("Payment failed. Check console.");
+  } finally {
+    setIsSubmitting(false);
   }
 };
 
@@ -116,14 +121,20 @@ const handleSubmit = async () => {
           <button
             onClick={() => setShowColectionForm(false)}
             className="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300"
+            disabled={isSubmitting}
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+            disabled={isSubmitting}
+            className={`flex-1 text-white py-2 rounded-lg ${
+              isSubmitting 
+                ? 'bg-blue-400 cursor-not-allowed' 
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
           >
-            Make Payment
+            {isSubmitting ? 'Processing...' : 'Make Payment'}
           </button>
         </div>
       </div>
