@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
-import { Typography, message, Tag, Card, Statistic, Row, Col } from 'antd';
-import { FileText, ArrowUpCircle, ArrowDownCircle, Wallet } from 'lucide-react';
+import { Typography, message, Tag, Card, Statistic, Button, Modal, Form, InputNumber } from 'antd';
+import { FileText, ArrowUpCircle, ArrowDownCircle, Wallet, Edit } from 'lucide-react';
 import axios from 'axios';
 import { formatCurrency, formatDate } from '../utils/formatters';
 
@@ -14,8 +14,10 @@ interface SavingsTransaction {
   created_at: string;
   date_received?: string;
   week_number?: number;
+
   year?: number;
   month?: number;
+  target?: number;
 }
 
 const SavingsReport = () => {
@@ -25,6 +27,45 @@ const SavingsReport = () => {
         withdrawals: 0,
         net: 0
     });
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingTransaction, setEditingTransaction] = useState<SavingsTransaction | null>(null);
+    const [form] = Form.useForm();
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+    const isAdmin = user?.role === 'ADMIN';
+
+    const handleEdit = (record: SavingsTransaction) => {
+        setEditingTransaction(record);
+        form.setFieldsValue({
+            amount: record.amount,
+            target: record.target || 0 // Assuming target might be available or 0
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleSave = async () => {
+        try {
+            const values = await form.validateFields();
+            if (!editingTransaction) return;
+
+            await axios.put(
+                `${import.meta.env.VITE_API_URL_DEV}/savings/${editingTransaction.id}`,
+                 values,
+                {
+                    headers: { Authorization: `Bearer ${user?.token}` }
+                }
+            );
+
+            message.success('Savings updated successfully');
+            setIsModalOpen(false);
+            setEditingTransaction(null);
+            actionRef.current?.reload();
+        } catch (error) {
+            console.error('Failed to update savings:', error);
+            message.error('Failed to update savings');
+        }
+    };
+
 
     const columns: ProColumns<SavingsTransaction>[] = [
         {
@@ -82,7 +123,7 @@ const SavingsReport = () => {
                         {type.toUpperCase()}
                     </Tag>
                 );
-             },
+            },
         },
         {
             title: 'Date',
@@ -119,6 +160,32 @@ const SavingsReport = () => {
                  max: 52,
                   placeholder: 'Week (1-52)'
              }
+        },
+
+        {
+            title: 'Actions',
+            valueType: 'option',
+            width: 100,
+            render: (_, record) => {
+                if (!isAdmin) return null;
+
+                const createdAt = new Date(record.created_at);
+                const now = new Date();
+                const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
+
+                if (diffInMinutes > 60) return null;
+
+                return (
+                    <Button 
+                        type="text" 
+                        icon={<Edit size={16} />} 
+                        onClick={() => handleEdit(record)}
+                        className="text-blue-600 hover:text-blue-800"
+                    >
+                        Edit
+                    </Button>
+                );
+            }
         },
     ];
 
@@ -239,6 +306,44 @@ const SavingsReport = () => {
                     settings: [{ icon: 'setting', tooltip: 'Settings' }],
                 }}
             />
+
+             <Modal
+                title="Edit Savings Transaction"
+                open={isModalOpen}
+                onOk={handleSave}
+                onCancel={() => {
+                    setIsModalOpen(false);
+                    setEditingTransaction(null);
+                }}
+            >
+                <Form
+                    form={form}
+                    layout="vertical"
+                >
+                    <Form.Item
+                        name="amount"
+                        label="Amount"
+                        rules={[{ required: true, message: 'Please enter the amount' }]}
+                    >
+                        <InputNumber
+                            style={{ width: '100%' }}
+                            formatter={value => `RWF ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                            parser={value => value!.replace(/RWF\s?|(,*)/g, '')}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        name="target"
+                        label="Target"
+                        rules={[{ required: true, message: 'Please enter the target' }]}
+                    >
+                        <InputNumber
+                            style={{ width: '100%' }}
+                            formatter={value => `RWF ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                            parser={value => value!.replace(/RWF\s?|(,*)/g, '')}
+                        />
+                    </Form.Item>
+                </Form>
+            </Modal>
          </div>
     );
 };
