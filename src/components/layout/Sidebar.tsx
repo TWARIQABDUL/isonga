@@ -8,7 +8,9 @@ import {
   TrendingUp,
   LucideReceiptPoundSterling,
   UserPlus,
-  Users
+  Users,
+  AlertTriangle,
+  AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -27,6 +29,8 @@ const navigation = [
   { name: 'Profile', href: '/profile', icon: User },
   { name: 'Users', href: '/users', icon: Users, adminOnly: true },
   { name: 'Create User', href: '/create-user', icon: UserPlus, adminOnly: true },
+  { name: 'Penalties', href: '/penalties', icon: AlertTriangle, adminOnly: true },
+  { name: 'My Penalties', href: '/my-penalties', icon: AlertCircle },
 ];
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {

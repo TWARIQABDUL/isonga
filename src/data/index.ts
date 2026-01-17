@@ -27,6 +27,17 @@ export interface Activity {
   status: 'completed' | 'pending' | 'failed';
 }
 
+export interface Penalty {
+  id: string;
+  userIdNumber: string;
+  // user?: User; // Optional: if we want to expand user details
+  amount: number;
+  reason: string;
+  status: 'PENDING' | 'PAID';
+  createdAt: string;
+  paidAt?: string;
+}
+
 export interface AccountSummary {
   totalSavings: number;
   totalLoans: number;

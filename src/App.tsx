@@ -18,6 +18,8 @@ import Profile from './pages/Profile';
 import CreateUser from './pages/CreateUser';
 import Users from './pages/Users';
 import Reports from './pages/Reports';
+import Penalties from './pages/Penalties';
+import MyPenalties from './pages/MyPenalties';
 import { ConfigProvider } from 'antd';
 import enUS from 'antd/locale/en_US';
 
@@ -66,6 +68,15 @@ const router = createBrowserRouter(
             </ProtectedRoute>
           ) 
         },
+        { 
+          path: "penalties", 
+          element: (
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <Penalties />
+            </ProtectedRoute>
+          ) 
+        },
+        { path: "my-penalties", element: <MyPenalties /> },
 
       ],
     },
