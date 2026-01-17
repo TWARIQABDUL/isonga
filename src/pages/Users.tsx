@@ -1,42 +1,40 @@
 import { ActionType, ProColumns, ProTable, ModalForm, ProFormText } from '@ant-design/pro-components';
 import { Tag, message, Typography, Button } from 'antd';
-import axios from 'axios';
 import { useRef, useState } from 'react';
-import { Users as UsersIcon, Edit } from 'lucide-react';
-
-interface User {
-  id: number;
-  idNumber: string;
-  fullName: string;
-  phoneNumber: string;
-  email: string;
-  cell: string;
-  role: 'ADMIN' | 'USER' | 'AGENT';
-  createdAt: string;
-}
+import { Users as UsersIcon, Edit, Mail } from 'lucide-react';
+import { User } from '../types';
+import { UserService } from '../services/UserService';
 
 const Users = () => {
   const actionRef = useRef<ActionType>();
   const [modalVisible, setModalVisible] = useState(false);
   const [currentRow, setCurrentRow] = useState<User | null>(null);
+  const [notifyLoading, setNotifyLoading] = useState(false);
 
   const handleUpdate = async (values: Partial<User>) => {
     if (!currentRow) return;
     try {
-      const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
-      await axios.patch(
-        `${import.meta.env.VITE_API_URL_DEV}/users/${currentRow.id}`,
-        values,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+      await UserService.updateUser(currentRow.id, values);
       message.success('User updated successfully');
       setModalVisible(false);
       actionRef.current?.reload();
     } catch (error) {
       console.error('Failed to update user:', error);
       message.error('Failed to update user');
+    }
+  };
+
+  const handleNotifyAll = async () => {
+    try {
+      setNotifyLoading(true);
+      await UserService.notifyAllExistingUsers();
+      message.success('Bulk email notification started in background.');
+      actionRef.current?.reload();
+    } catch (error) {
+      console.error('Failed to notify users:', error);
+      message.error('Failed to start notification process');
+    } finally {
+      setNotifyLoading(false);
     }
   };
 
@@ -95,6 +93,20 @@ const Users = () => {
       search: false,
     },
     {
+      title: 'Welcome Email',
+      dataIndex: 'accountNotificationSent',
+      valueType: 'select',
+      valueEnum: {
+        true: { text: 'Sent', status: 'Success' },
+        false: { text: 'Not Sent', status: 'Error' },
+      },
+       render: (_, record) => (
+        <Tag color={record.accountNotificationSent ? 'green' : 'orange'}>
+          {record.accountNotificationSent ? 'Sent' : 'Pending'}
+        </Tag>
+      ),
+    },
+    {
       title: 'Actions',
       valueType: 'option',
       render: (_, record) => [
@@ -126,15 +138,9 @@ const Users = () => {
             cardBordered
             request={async (params) => {
                 try {
-                const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
-                const response = await axios.get(
-                    `${import.meta.env.VITE_API_URL_DEV}/users`,
-                    {
-                        headers: { Authorization: `Bearer ${token}` }
-                    }
-                );
+                const { data } = await UserService.getUsers();
 
-                let filteredData = response.data;
+                let filteredData = data;
 
                 // Client-side filtering
                 if (params.fullName) {
@@ -177,6 +183,18 @@ const Users = () => {
                     };
                 }
             }}
+            toolBarRender={() => [
+              <Button
+                key="notify"
+                type="primary"
+                onClick={handleNotifyAll}
+                loading={notifyLoading}
+                icon={<Mail className="w-4 h-4" />}
+                className="bg-blue-600"
+              >
+                Notify Existing Users
+              </Button>,
+            ]}
             editable={{
                 type: 'multiple',
             }}
