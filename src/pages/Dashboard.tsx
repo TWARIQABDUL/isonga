@@ -109,6 +109,12 @@ export default function Dashboard():React.ReactElement {
                 trend={{ value: 10, isPositive: true }}
               />
               <DashboardCard
+                title="Total Ingoboka"
+                value={formatCurrency(accountSummary?.totalIngoboka ?? 0)}
+                icon={Users}
+                trend={{ value: 10, isPositive: true }}
+              />
+              <DashboardCard
                 title="Total Savings"
                 value={formatCurrency(accountSummary?.totalSavings ?? 0)}
                 icon={PiggyBank}

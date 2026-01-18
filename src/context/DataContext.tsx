@@ -57,7 +57,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
               interestEarned: 0,      // Not applicable for admin
               creditScore: 0,         // Not applicable for admin
               availableCredit: 0,      // Not applicable for admin
-              totalUsers: res.data.data.totalUsers
+              totalUsers: res.data.data.totalUsers,
+              totalIngoboka: res.data.data.totalIngoboka
             });
           } else {
             setAccountSummary({

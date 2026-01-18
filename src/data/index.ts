@@ -46,6 +46,7 @@ export interface AccountSummary {
   creditScore: number;
   availableCredit: number;
   totalUsers?: number;
+  totalIngoboka?: number;
 }
 
 export const savingsData: SavingsData[] = [
