@@ -34,7 +34,7 @@ export interface Penalty {
   amount: number;
   reason: string;
   status: 'PENDING' | 'PAID';
-  createdAt: string;
+  dateIssued: string;
   paidAt?: string;
 }
 

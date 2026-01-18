@@ -60,7 +60,7 @@ const Penalties = () => {
     { label: 'Status', key: 'status', render: (status: string) => (
       <Badge variant={status === 'PAID' ? 'success' : 'warning'}>{status}</Badge>
     )},
-    { label: 'Created At', key: 'createdAt', render: (date: string) => new Date(date).toLocaleDateString() },
+    { label: 'Created At', key: 'dateIssued', render: (date: string) => new Date(date).toLocaleDateString() },
     {
       label: 'Actions',
       key: 'id',

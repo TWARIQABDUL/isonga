@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { Select } from 'antd';
 import { PenaltyService } from '../../services/PenaltyService';
+import { UserService } from '../../services/UserService';
+import { User } from '../../types';
 
 interface CreatePenaltyModalProps {
   onClose: () => void;
@@ -14,7 +17,25 @@ const CreatePenaltyModal: React.FC<CreatePenaltyModalProps> = ({ onClose, onSucc
     reason: ''
   });
   const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [fetchingUsers, setFetchingUsers] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setFetchingUsers(true);
+      try {
+        const { data } = await UserService.getUsers();
+        setUsers(data);
+      } catch (err) {
+        console.error('Failed to fetch users:', err);
+        setError('Failed to load users list.');
+      } finally {
+        setFetchingUsers(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,15 +76,24 @@ const CreatePenaltyModal: React.FC<CreatePenaltyModalProps> = ({ onClose, onSucc
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              User ID Number
+              Select User
             </label>
-            <input
-              type="text"
-              required
-              value={formData.userIdNumber}
-              onChange={(e) => setFormData({ ...formData, userIdNumber: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter 16-digit ID"
+            <Select
+              showSearch
+              placeholder="Search by name or ID"
+              optionFilterProp="children"
+              loading={fetchingUsers}
+              onChange={(value) => setFormData({ ...formData, userIdNumber: value })}
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              className="w-full"
+              size="large"
+              value={formData.userIdNumber || undefined}
+              options={users.map(user => ({
+                value: user.idNumber,
+                label: `${user.fullName} (${user.idNumber})`,
+              }))}
             />
           </div>
 
@@ -106,7 +136,7 @@ const CreatePenaltyModal: React.FC<CreatePenaltyModalProps> = ({ onClose, onSucc
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !formData.userIdNumber}
               className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
             >
               {loading ? 'Issuing...' : 'Issue Penalty'}
