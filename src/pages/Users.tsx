@@ -38,6 +38,18 @@ const Users = () => {
     }
   };
 
+  const handleResend = async (idNumber: string) => {
+    try {
+      message.loading({ content: 'Resending notification...', key: 'resend' });
+      await UserService.resendNotification(idNumber);
+      message.success({ content: 'Notification resent successfully', key: 'resend' });
+      // actionRef.current?.reload(); // Optional: reload if needed, but status might not change immediately for resend
+    } catch (error) {
+      console.error('Failed to resend notification:', error);
+      message.error({ content: 'Failed to resend notification', key: 'resend' });
+    }
+  };
+
   const columns: ProColumns<User>[] = [
     {
       title: 'Full Name',
@@ -96,19 +108,18 @@ const Users = () => {
       title: 'Welcome Email',
       dataIndex: 'accountNotificationSent',
       valueType: 'select',
-      valueEnum: {
-        true: { text: 'Sent', status: 'Success' },
-        false: { text: 'Not Sent', status: 'Error' },
+      width: 150,
+      render: (_, record) => {
+        const isSent = record.accountNotificationSent;
+        const color = isSent ? 'success' : 'warning';
+        const text = isSent ? 'Sent' : 'Not Sent';
+        return <Tag color={color}>{text}</Tag>;
       },
-       render: (_, record) => (
-        <Tag color={record.accountNotificationSent ? 'green' : 'orange'}>
-          {record.accountNotificationSent ? 'Sent' : 'Pending'}
-        </Tag>
-      ),
     },
     {
       title: 'Actions',
       valueType: 'option',
+      width: 200,
       render: (_, record) => [
         <Button
           key="edit"
@@ -121,6 +132,15 @@ const Users = () => {
         >
           Edit
         </Button>,
+        <Button
+            key="resend"
+            type="link"
+            size="small"
+            onClick={() => handleResend(record.idNumber)}
+            className={record.accountNotificationSent ? "text-gray-500" : "text-orange-500"}
+        >
+            Resend Email
+        </Button>
       ],
     },
   ];

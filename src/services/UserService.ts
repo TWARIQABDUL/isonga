@@ -39,4 +39,13 @@ export const UserService = {
     );
     return response.data;
   },
+
+  resendNotification: async (idNumber: string) => {
+    const response = await axios.post(
+      `${baseUrl}/${idNumber}/resend-notification`,
+      {},
+      { headers: getHeaders() }
+    );
+    return response.data;
+  },
 };
