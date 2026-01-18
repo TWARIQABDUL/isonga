@@ -18,6 +18,7 @@ interface SavingsTransaction {
   year?: number;
   month?: number;
   target?: number;
+  ingoboka?: number;
 }
 
 const SavingsReport = () => {
@@ -99,6 +100,17 @@ const SavingsReport = () => {
             render: (_, record) => (
                 <span className={`font-semibold ${record.type === 'withdrawal' ? 'text-red-600' : 'text-green-600'}`}>
                     {record.type === 'withdrawal' ? '-' : '+'}{formatCurrency(record.amount)}
+                </span>
+            ),
+        },
+        {
+            title: 'Ingoboka',
+            dataIndex: 'ingoboka',
+            search: false,
+            align: 'right',
+            render: (_, record) => (
+                <span className="font-semibold text-blue-600">
+                    {formatCurrency(record.ingoboka || 0)}
                 </span>
             ),
         },

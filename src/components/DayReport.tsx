@@ -9,6 +9,7 @@ interface SavingsReportItem {
   full_name: string;
   id_number: string;
   total_amount: string | number;
+  total_ingoboka: string | number;
   date_received: string;
 }
 
@@ -16,12 +17,14 @@ const columns = [
   { title: 'Full Name', dataIndex: 'full_name', key: 'full_name' },
   { title: 'ID Number', dataIndex: 'id_number', key: 'id_number' },
   { title: 'Total Amount', dataIndex: 'total_amount', key: 'total_amount', valueType: 'money' },
+  { title: 'Total Ingoboka', dataIndex: 'total_ingoboka', key: 'total_ingoboka', valueType: 'money' },
   { title: 'Date Received', dataIndex: 'date_received', key: 'date_received', valueType: 'date', sorter: (a: any, b: any) => new Date(a.date_received).getTime() - new Date(b.date_received).getTime() },
 ];
 
 const DayReport = () => {
   const [loading, setLoading] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [totalIngoboka, setTotalIngoboka] = useState(0);
   
   return (
     <Card
@@ -68,7 +71,9 @@ const DayReport = () => {
               );
             }
             const total = filtered.reduce((sum, item) => sum + Number(item.total_amount), 0);
+            const totalIng = filtered.reduce((sum, item) => sum + Number(item.total_ingoboka || 0), 0);
             setTotalAmount(total);
+            setTotalIngoboka(totalIng);
 
             return {
               data: filtered,
@@ -78,6 +83,7 @@ const DayReport = () => {
           } catch (err) {
             console.error('Failed to fetch report:', err);
             setTotalAmount(0);
+            setTotalIngoboka(0);
             return { data: [], success: false, total: 0 };
           } finally {
             setLoading(false);
@@ -85,10 +91,16 @@ const DayReport = () => {
         }}
       />
       <Divider />
-      <Typography.Title level={4} style={{ textAlign: 'right', marginBottom: 0 }}>
+    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '24px' }}>
+      <Typography.Title level={4} style={{ marginBottom: 0 }}>
         Total Amount:&nbsp;
         <span style={{ color: '#1890ff' }}>{totalAmount.toLocaleString()}</span> RWF
       </Typography.Title>
+      <Typography.Title level={4} style={{ marginBottom: 0 }}>
+        Total Ingoboka:&nbsp;
+        <span style={{ color: '#52c41a' }}>{totalIngoboka.toLocaleString()}</span> RWF
+      </Typography.Title>
+    </div>
     </Card>
   );
 };
