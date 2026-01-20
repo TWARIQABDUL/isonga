@@ -7,7 +7,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Plus,
-  Users
+  Users,
+  AlertCircle
 } from 'lucide-react';
 import DashboardCard from '../components/layout/DashboardCard';
 import SavingsChart from '../components/charts/SavingsChart';
@@ -146,10 +147,22 @@ export default function Dashboard():React.ReactElement {
                 value={formatCurrency(accountSummary?.monthlyContribution ?? 0)}
                 icon={TrendingUp}        />
               <DashboardCard
-                title="Credit Score"
-                value={accountSummary?.creditScore ?? 0}
+                title="Available Credit"
+                value={formatCurrency(accountSummary?.availableCredit ?? 0)}
                 icon={Award}
                 trend={{ value: 2.3, isPositive: true }}
+              />
+               <DashboardCard
+                title="Total Ingoboka"
+                value={formatCurrency(accountSummary?.totalIngoboka ?? 0)}
+                icon={Users}
+                trend={{ value: 10, isPositive: true }}
+              />
+              <DashboardCard
+                title="Total Ibihano"
+                value={formatCurrency(accountSummary?.totalIbihano ?? 0)}
+                icon={AlertCircle}
+                trend={{ value: -5.2, isPositive: false }}
               />
            </>
         )}

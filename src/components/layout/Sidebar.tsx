@@ -21,10 +21,10 @@ interface SidebarProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Savings', href: '/savings', icon: PiggyBank },
-  { name: 'Loans', href: '/loans', icon: CreditCard },
-  { name: 'Request Loan', href: '/loan-request', icon: FileText },
-  { name: 'Analytics', href: '/analytics', icon: TrendingUp },
+  // { name: 'Savings', href: '/savings', icon: PiggyBank },
+  // { name: 'Loans', href: '/loans', icon: CreditCard },
+  // { name: 'Request Loan', href: '/loan-request', icon: FileText },
+  // { name: 'Analytics', href: '/analytics', icon: TrendingUp },
   { name: 'Savings Report', href: '/savings-report', icon: FileText, adminOnly: true },
   { name: 'Profile', href: '/profile', icon: User },
   { name: 'Users', href: '/users', icon: Users, adminOnly: true },

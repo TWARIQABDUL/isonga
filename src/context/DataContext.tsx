@@ -64,7 +64,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             setAccountSummary({
               ...res.data.data,
               interestEarned: 0, 
-              creditScore: 'Good'
+              creditScore: 0
             });
           }
           console.log("accountSummary loaded:", res.data.data);
