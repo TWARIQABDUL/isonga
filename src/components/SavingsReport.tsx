@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
 import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components';
 import { Typography, message, Tag, Card, Statistic, Button, Modal, Form, InputNumber } from 'antd';
-import { FileText, ArrowUpCircle, ArrowDownCircle, Wallet, Edit } from 'lucide-react';
+import { FileText, ArrowUpCircle, ArrowDownCircle, Wallet, Edit, UploadCloud } from 'lucide-react';
 import axios from 'axios';
 import { formatCurrency, formatDate } from '../utils/formatters';
+import ImportSavingsModal from './forms/ImportSavingsModal';
 
 interface SavingsTransaction {
   id: string; 
@@ -29,6 +30,7 @@ const SavingsReport = () => {
         net: 0
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [editingTransaction, setEditingTransaction] = useState<SavingsTransaction | null>(null);
     const [form] = Form.useForm();
     const userStr = localStorage.getItem('user');
@@ -311,12 +313,30 @@ const SavingsReport = () => {
                 options={{
                     density: true,
                     fullScreen: true,
-                    refresh: true,
                     setting: true,
                 }}
                 toolbar={{
                     settings: [{ icon: 'setting', tooltip: 'Settings' }],
+                    actions: [
+                        isAdmin && (
+                            <Button
+                                key="import"
+                                type="primary"
+                                icon={<UploadCloud size={16} />}
+                                onClick={() => setIsImportModalOpen(true)}
+                                className="flex items-center gap-2"
+                            >
+                                Import Excel
+                            </Button>
+                        ),
+                    ],
                 }}
+            />
+
+            <ImportSavingsModal
+                open={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+                onSuccess={() => actionRef.current?.reload()}
             />
 
              <Modal
